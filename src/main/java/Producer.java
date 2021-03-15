@@ -1,16 +1,18 @@
 import jdk.jshell.execution.Util;
 
+import javax.swing.plaf.TableHeaderUI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 
-public class Producer implements Runnable {
+public class Producer extends Thread {
 
 
     private static final Logger LOG = Logger.getLogger(Producer.class.getName());
@@ -20,6 +22,7 @@ public class Producer implements Runnable {
     final Integer numberOfMessagesToProduce;
     final AtomicInteger numberOfProducedMessages = new AtomicInteger();
 
+//    BooleanSupplier isProducerStillProducing;
 
 
     final List<Event> events = new ArrayList<>();

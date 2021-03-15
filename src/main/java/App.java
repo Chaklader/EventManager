@@ -14,16 +14,19 @@ public class App {
 
     public static void main(String[] args) throws InterruptedException {
 
-        Object o = new Object();
 
         TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
         ExecutorService exService = Executors.newFixedThreadPool(2);
 
         Producer producer = new Producer( transferQueue, "1", 2);
-        Consumer consumer = new Consumer(transferQueue, "1", 2);
+        producer.start();
+
+        Consumer consumer = new Consumer(producer::isAlive, transferQueue, "1", 2);
+        consumer.start();
 
         exService.execute(producer);
         exService.execute(consumer);
+
 
         boolean isShutDown = exService.awaitTermination(5000, TimeUnit.MILLISECONDS);
 
@@ -31,6 +34,9 @@ public class App {
 
             exService.shutdown();
         }
+
+
+
 
         List<Event> sdds = consumer.getEvents();
 
@@ -42,6 +48,5 @@ public class App {
 
 
         LOG.info("Transfer completed");
-        System.exit(0);
     }
 }

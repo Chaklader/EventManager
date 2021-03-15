@@ -2,9 +2,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 
-public class Consumer implements Runnable {
+public class Consumer extends Thread{
+
 
     private static final Logger LOG = Logger.getLogger(Consumer.class.getName());
 
@@ -18,17 +20,21 @@ public class Consumer implements Runnable {
 
     final List<Event> events = new ArrayList<>();
 
+    volatile BooleanSupplier booleanSupplier;
+
 
 
     public List<Event> getEvents() {
         return events;
     }
 
-    Consumer(TransferQueue<Event> transferQueue, String name, int numberOfMessagesToConsume) {
+    Consumer(BooleanSupplier booleanSupplier, TransferQueue<Event> transferQueue, String name, int numberOfMessagesToConsume) {
 
         this.transferQueue = transferQueue;
         this.name = name;
         this.numberOfMessagesToConsume = numberOfMessagesToConsume;
+
+        this.booleanSupplier = booleanSupplier;
 
     }
 
@@ -40,20 +46,30 @@ public class Consumer implements Runnable {
 
         synchronized (this) {
 
-            while (true) {
+            while (booleanSupplier.getAsBoolean()) {
 
                 try {
+
+                    System.out.println("Producer alive "+booleanSupplier.getAsBoolean());
                     LOG.info("Consumer: " + name + " is waiting to take element...");
 
                     element = transferQueue.take();
 
                     Character c = element.getC();
 
-                    if (c.equals('\0')) {
+//                    System.out.println("Number of consimed message: "+ numberOfConsumedMessages.intValue());
 
-                        LOG.info("Received the ending hook and terminating the consumption procedure");
-                        break;
-                    }
+//                    if(numberOfConsumedMessages.intValue()==15){
+//
+//                        LOG.info("Received the ending hook and terminating the consumption procedure");
+//                        break;
+//                    }
+
+//                    if (c.equals('\0')) {
+//
+//                        LOG.info("Received the ending hook and terminating the consumption procedure");
+//                        break;
+//                    }
 
                     longProcessing(element);
 
