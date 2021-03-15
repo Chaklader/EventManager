@@ -23,7 +23,7 @@ public class App {
         ExecutorService exService = Executors.newFixedThreadPool(2);
 
         Producer producer = new Producer( transferQueue, "1", 5);
-        Consumer consumer = new Consumer(transferQueue, "1", 3);
+        Consumer consumer = new Consumer(transferQueue, "1", 5);
 
         exService.execute(producer);
         exService.execute(consumer);
@@ -34,6 +34,14 @@ public class App {
 
             exService.shutdown();
         }
+
+        List<Event> sdds = consumer.getEvents();
+
+        EventProcessor processor = new EventProcessor(sdds, 5);
+        String v = processor.createString();
+        String sample = processor.createSample(v);
+
+        System.out.println(sample);
 
 
         LOG.info("Transfer completed");

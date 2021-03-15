@@ -39,8 +39,9 @@ public class Producer implements Runnable {
 
         Stream<Character> generate = Stream.generate(this::generateRandomCharacter).limit(15);
 
-        generate.forEach(character -> {
+        Stream<Character> concat = Stream.concat(generate, Stream.of('\0'));
 
+        concat.forEach(character -> {
 
             LOG.info("Producer: " + name + " is waiting to transfer...");
 
@@ -54,9 +55,9 @@ public class Producer implements Runnable {
 
                 if (added) {
                     numberOfProducedMessages.incrementAndGet();
-                    LOG.info("Producer: " + name + " transferred element: A");
+                    LOG.info("/Producer: " + name + " transferred element: A");
                 } else {
-                    LOG.info("can not add an element due to the timeout");
+//                    LOG.info("can not add an element due to the timeout");
                 }
 
 

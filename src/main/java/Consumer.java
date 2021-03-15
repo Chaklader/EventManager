@@ -23,10 +23,16 @@ public class Consumer implements Runnable {
 
 
     public List<Event> getGenerated() {
+
         return generated;
     }
 
-//    final Object obj;
+    public List<Event> getEvents() {
+        return events;
+    }
+
+
+    //    final Object obj;
 
     Consumer(TransferQueue<Event> transferQueue, String name, int numberOfMessagesToConsume) {
 
@@ -42,32 +48,45 @@ public class Consumer implements Runnable {
     @Override
     public void run() {
 
-        synchronized (events) {
 
-            while (true){
+         synchronized (this){
 
-                try {
-                    LOG.info("Consumer: " + name + " is waiting to take element...");
+             while (true) {
 
-                    element = transferQueue.take();
+                 try {
+//                    LOG.info("Consumer: " + name + " is waiting to take element...");
 
-                    longProcessing(element);
+                     element = transferQueue.take();
 
-                    System.out.println("Consumer: " + name + " received element with messgae : " + element.getC());
+                     Character erer = element.getC();
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+                     if (erer.equals('\0')) {
+
+                         System.out.println("received and exiting");
+                         break;
+                     }
+
+                     longProcessing(element);
+
+                     System.out.println("Consumer: " + name + " received element with messgae : " + erer);
+
+                 } catch (InterruptedException e) {
+                     e.printStackTrace();
+                 }
+
+             }
+         }
 
 
-        }
+
 
     }
 
     private void longProcessing(Event element) throws InterruptedException {
 
         numberOfConsumedMessages.incrementAndGet();
+        events.add(element);
+
         Thread.sleep(5);
     }
 
