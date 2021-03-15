@@ -14,16 +14,13 @@ public class App {
 
     public static void main(String[] args) throws InterruptedException {
 
-
-        List<Event> events = new ArrayList<>();
-
         Object o = new Object();
 
         TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
         ExecutorService exService = Executors.newFixedThreadPool(2);
 
-        Producer producer = new Producer( transferQueue, "1", 5);
-        Consumer consumer = new Consumer(transferQueue, "1", 5);
+        Producer producer = new Producer( transferQueue, "1", 2);
+        Consumer consumer = new Consumer(transferQueue, "1", 2);
 
         exService.execute(producer);
         exService.execute(consumer);

@@ -1,3 +1,5 @@
+import jdk.jshell.execution.Util;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +13,6 @@ import java.util.stream.Stream;
 public class Producer implements Runnable {
 
 
-
     private static final Logger LOG = Logger.getLogger(Producer.class.getName());
 
     private final TransferQueue<Event> transferQueue;
@@ -19,9 +20,6 @@ public class Producer implements Runnable {
     final Integer numberOfMessagesToProduce;
     final AtomicInteger numberOfProducedMessages = new AtomicInteger();
 
-    private static final Object obj = new Object();
-
-    Object object;
 
 
     final List<Event> events = new ArrayList<>();
@@ -37,35 +35,38 @@ public class Producer implements Runnable {
     public void run() {
 
 
-        Stream<Character> generate = Stream.generate(this::generateRandomCharacter).limit(15);
+        synchronized (this) {
 
-        Stream<Character> concat = Stream.concat(generate, Stream.of('\0'));
+            Stream<Character> generate = Stream.generate(this::generateRandomCharacter).limit(15);
 
-        concat.forEach(character -> {
+            Stream<Character> concat = Stream.concat(generate, Stream.of('\0'));
 
-            LOG.info("Producer: " + name + " is waiting to transfer...");
+            concat.forEach(character -> {
 
-            try {
+                LOG.info("Producer: " + name + " is waiting to transfer...");
 
-                Event myEvent = new Event(character);
+                try {
 
-                events.add(myEvent);
+                    Event myEvent = new Event(character);
 
-                boolean added = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
+                    events.add(myEvent);
 
-                if (added) {
-                    numberOfProducedMessages.incrementAndGet();
-                    LOG.info("/Producer: " + name + " transferred element: A");
-                } else {
-//                    LOG.info("can not add an element due to the timeout");
+                    boolean added = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
+
+                    if (added) {
+                        numberOfProducedMessages.incrementAndGet();
+                        LOG.info("/Producer: " + name + " transferred element: A");
+                    } else {
+                        LOG.info("can not add an element due to the timeout");
+                    }
+
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
 
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        });
+            });
+        }
 
 
     }
@@ -79,29 +80,4 @@ public class Producer implements Runnable {
     }
 
 
-//    public void produce(Event e) throws InterruptedException
-//    {
-//        synchronized(generated){
-//
-//            while(generated.size()==15) // If list is full then will have to wait
-//            {
-//
-//                System.out.println("List is full "+Thread.currentThread().getName()+" Is waiting and" + " Size is "+generated.size());
-//
-//                Parameters.producerFinished = true;
-//
-////                generated.wait();
-//                generated.notifyAll();
-//            }
-//        }
-//
-//        synchronized(generated)
-//        {
-//            System.out.println("Producing");
-//            generated.add(e);
-////            generated.notifyAll();
-//
-//            generated.wait();
-//        }
-//    }
 }

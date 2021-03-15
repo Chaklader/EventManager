@@ -6,9 +6,6 @@ import java.util.logging.Logger;
 
 public class Consumer implements Runnable {
 
-
-    final List<Event> generated = new ArrayList<>();
-
     private static final Logger LOG = Logger.getLogger(Consumer.class.getName());
 
     private final TransferQueue<Event> transferQueue;
@@ -22,17 +19,10 @@ public class Consumer implements Runnable {
     final List<Event> events = new ArrayList<>();
 
 
-    public List<Event> getGenerated() {
-
-        return generated;
-    }
 
     public List<Event> getEvents() {
         return events;
     }
-
-
-    //    final Object obj;
 
     Consumer(TransferQueue<Event> transferQueue, String name, int numberOfMessagesToConsume) {
 
@@ -40,7 +30,6 @@ public class Consumer implements Runnable {
         this.name = name;
         this.numberOfMessagesToConsume = numberOfMessagesToConsume;
 
-//        this.obj = obj;
     }
 
     Event element;
@@ -49,37 +38,33 @@ public class Consumer implements Runnable {
     public void run() {
 
 
-         synchronized (this){
+        synchronized (this) {
 
-             while (true) {
+            while (true) {
 
-                 try {
-//                    LOG.info("Consumer: " + name + " is waiting to take element...");
+                try {
+                    LOG.info("Consumer: " + name + " is waiting to take element...");
 
-                     element = transferQueue.take();
+                    element = transferQueue.take();
 
-                     Character erer = element.getC();
+                    Character c = element.getC();
 
-                     if (erer.equals('\0')) {
+                    if (c.equals('\0')) {
 
-                         System.out.println("received and exiting");
-                         break;
-                     }
+                        LOG.info("Received the ending hook and terminating the consumption procedure");
+                        break;
+                    }
 
-                     longProcessing(element);
+                    longProcessing(element);
 
-                     System.out.println("Consumer: " + name + " received element with messgae : " + erer);
+                    System.out.println("Consumer: " + name + " received element with messgae : " + c);
 
-                 } catch (InterruptedException e) {
-                     e.printStackTrace();
-                 }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-             }
-         }
-
-
-
-
+            }
+        }
     }
 
     private void longProcessing(Event element) throws InterruptedException {
@@ -89,31 +74,5 @@ public class Consumer implements Runnable {
 
         Thread.sleep(5);
     }
-
-
-//    public void consume(Event e) throws InterruptedException {
-//
-//        synchronized (generated) {
-//            while (generated.isEmpty() && !Parameters.producerFinished) // If list is empty then will have to wait
-//            {
-//                System.out.println("List is empty " + Thread.currentThread().getName() + " Is waiting and " + "Size is " + generated.size());
-//                generated.wait();
-//            }
-//
-//            if (!generated.isEmpty()) {
-//                generated.add(e);
-//                //consume element
-//            } else {
-//                //List is empty and producer has finished.
-//                System.out.println("Consume process is finished");
-//            }
-//        }
-//
-//        synchronized (generated) {
-//            generated.notifyAll();
-//            generated.remove(0);
-//        }
-//
-//    }
 
 }
