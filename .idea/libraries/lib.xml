@@ -1,0 +1,19 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/javafx.graphics.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/javafx.base.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/mwave_sdk.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/javafx.web.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/javafx.media.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/sdk_api_doc.zip!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/javafx.controls.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/javafx-swt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/javafx.swing.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/src.zip!/" />
+      <root url="jar://$PROJECT_DIR$/../MotiveWaveStudies/lib/javafx.fxml.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
