@@ -1,4 +1,6 @@
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -7,9 +9,32 @@ import java.util.List;
 public class Event {
 
 
-    List<Character> list = new ArrayList<>();
+//    List<Character> list = new ArrayList<>();
 
+    Integer id;
     Character c;
+
+    Date date;
+
+    public Event() {
+    }
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
     public Event(Character c) {
         this.c = c;
@@ -23,11 +48,11 @@ public class Event {
         this.c = c;
     }
 
-    public List<Character> getList() {
-        return list;
-    }
-
-    public void setList(List<Character> list) {
-        this.list = list;
-    }
+//    public List<Character> getList() {
+//        return list;
+//    }
+//
+//    public void setList(List<Character> list) {
+//        this.list = list;
+//    }
 }

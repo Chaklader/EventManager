@@ -18,24 +18,40 @@ public class App {
         TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
         ExecutorService exService = Executors.newFixedThreadPool(2);
 
-        Producer producer = new Producer( transferQueue, "1", 2);
+        Producer producer = new Producer( transferQueue, "producer thread", 2);
         producer.start();
 
-        Consumer consumer = new Consumer(producer::isAlive, transferQueue, "1", 2);
+        Consumer consumer = new Consumer(producer::isAlive, transferQueue, "consumer thread", 2);
         consumer.start();
 
-        exService.execute(producer);
-        exService.execute(consumer);
+//        exService.execute(producer);
+//        exService.execute(consumer);
+//
+//
+//        boolean isShutDown = exService.awaitTermination(5000, TimeUnit.MILLISECONDS);
+//
+//        if (!isShutDown) {
+//
+//            exService.shutdown();
+//
+//            producer.interrupt();
+//        }
 
 
-        boolean isShutDown = exService.awaitTermination(5000, TimeUnit.MILLISECONDS);
+        if(producer.isInterrupted()){
 
-        if (!isShutDown) {
-
-            exService.shutdown();
+            producer.interrupt();
+            System.out.println("Producer is interrupted");
         }
 
+//        if(producer.isAlive()){
+//
+//            producer.interrupt();
+//        }
+//        consumer.interrupt();
 
+//        producer.join();
+//        consumer.join();
 
 
         List<Event> sdds = consumer.getEvents();

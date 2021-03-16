@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 
-public class Consumer extends Thread{
+public class Consumer extends Thread {
 
 
     private static final Logger LOG = Logger.getLogger(Consumer.class.getName());
@@ -21,7 +21,6 @@ public class Consumer extends Thread{
     final List<Event> events = new ArrayList<>();
 
     volatile BooleanSupplier booleanSupplier;
-
 
 
     public List<Event> getEvents() {
@@ -50,26 +49,22 @@ public class Consumer extends Thread{
 
                 try {
 
-                    System.out.println("Producer alive "+booleanSupplier.getAsBoolean());
+                    System.out.println("Producer alive " + booleanSupplier.getAsBoolean());
                     LOG.info("Consumer: " + name + " is waiting to take element...");
 
                     element = transferQueue.take();
 
-                    Character c = element.getC();
+                    char c = element.getC();
 
-//                    System.out.println("Number of consimed message: "+ numberOfConsumedMessages.intValue());
+                    System.out.println("Number of consimed message: " + numberOfConsumedMessages.intValue());
 
-//                    if(numberOfConsumedMessages.intValue()==15){
-//
-//                        LOG.info("Received the ending hook and terminating the consumption procedure");
-//                        break;
-//                    }
+                    if (c == '\0') {
 
-//                    if (c.equals('\0')) {
-//
-//                        LOG.info("Received the ending hook and terminating the consumption procedure");
-//                        break;
-//                    }
+
+                        booleanSupplier = ()-> false;
+                        LOG.info("Received the ending hook and terminating the consumption procedure");
+                        break;
+                    }
 
                     longProcessing(element);
 
