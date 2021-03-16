@@ -28,7 +28,7 @@ public class App {
 
         List<Event> allConsumedEvents = consumer.getAllConsumedEvents();
 
-        EventProcessor processor = new EventProcessor(allConsumedEvents, 5);
+        EventProcessor processor = new EventProcessor(allConsumedEvents, Parameters.SAMPLE_SIZE);
 
         String consumedStr = processor.getStringUsingConsumedCharacters();
         String randomSampleRes = processor.createRandomSample(consumedStr);
