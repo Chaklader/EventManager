@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -11,11 +12,16 @@ public class EventProcessor {
 
     private final int sampleSize;
 
+    private Random random;
+
 
     public EventProcessor(List<Event> events, int sampleSize) {
 
         this.events = events;
+
         this.sampleSize = sampleSize;
+
+        this.random = new Random();
     }
 
 
@@ -26,13 +32,25 @@ public class EventProcessor {
         return chars.stream()
                    .map(String::valueOf)
                    .collect(Collectors.joining());
-
     }
 
-    protected String createSample(String s) {
 
-        System.out.println(sampleSize);
+    /**
+     * create a random sample with sample size using the large consumed string
+     */
+    protected String createRandomSample(String consumedLargeString) {
 
-        return "EMETN";
+        StringBuilder result = new StringBuilder();
+        int N = consumedLargeString.length();
+
+        for (int i = 0; i < sampleSize; i++) {
+
+            int index = random.nextInt(N);
+            String str = consumedLargeString.substring(index , index + 1);
+
+            result.append(str);
+        }
+
+        return result.toString();
     }
 }

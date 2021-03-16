@@ -1,6 +1,4 @@
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TransferQueue;
 import java.util.logging.Logger;
@@ -18,7 +16,6 @@ public class App {
 
 
         TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
-        ExecutorService exService = Executors.newFixedThreadPool(2);
 
         Producer producer = new Producer(transferQueue, "producer thread");
         producer.start();
@@ -26,46 +23,18 @@ public class App {
         Consumer consumer = new Consumer(producer::isAlive, transferQueue, "consumer thread");
         consumer.start();
 
-//        exService.execute(producer);
-//        exService.execute(consumer);
-//
-//
-//        boolean isShutDown = exService.awaitTermination(5000, TimeUnit.MILLISECONDS);
-//
-//        if (!isShutDown) {
-//
-//            exService.shutdown();
-//
-//            producer.interrupt();
-//        }
-
-
-        if (producer.isInterrupted()) {
-
-            producer.interrupt();
-
-            LOG.info("Producer is interrupted and terminating it now ...");
-        }
-
-//        if(producer.isAlive()){
-//
-//            producer.interrupt();
-//        }
-//        consumer.interrupt();
-
-//        producer.join();
-//        consumer.join();
-
+        producer.join();
+        consumer.join();
 
         List<Event> allConsumedEvents = consumer.getAllConsumedEvents();
 
         EventProcessor processor = new EventProcessor(allConsumedEvents, 5);
 
-        String v = processor.getStringUsingConsumedCharacters();
-        String sample = processor.createSample(v);
+        String consumedStr = processor.getStringUsingConsumedCharacters();
+        String randomSampleRes = processor.createRandomSample(consumedStr);
 
-        System.out.println(sample);
 
+        LOG.info("Generated random sample from the consumed string: " + randomSampleRes);
 
         LOG.info("Transfer completed");
     }

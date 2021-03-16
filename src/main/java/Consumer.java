@@ -6,7 +6,6 @@ import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 
 
-
 public class Consumer extends Thread {
 
 
@@ -21,16 +20,15 @@ public class Consumer extends Thread {
 
     private final List<Event> totalEvents = new ArrayList<>();
 
-    private volatile BooleanSupplier booleanSupplier;
+    private volatile BooleanSupplier isProducerAlive;
 
 
-    Consumer(BooleanSupplier booleanSupplier, TransferQueue<Event> transferQueue, String threadName) {
+    Consumer(BooleanSupplier isProducerAlive, TransferQueue<Event> transferQueue, String threadName) {
 
         this.transferQueue = transferQueue;
         this.threadName = threadName;
 
-        this.booleanSupplier = booleanSupplier;
-
+        this.isProducerAlive = isProducerAlive;
     }
 
     @Override
@@ -38,7 +36,7 @@ public class Consumer extends Thread {
 
         synchronized (this) {
 
-            while (booleanSupplier.getAsBoolean()) {
+            while (isProducerAlive.getAsBoolean()) {
 
                 try {
 
@@ -52,7 +50,7 @@ public class Consumer extends Thread {
 
                     if (item == '\0') {
 
-                        booleanSupplier = () -> false;
+                        isProducerAlive = () -> false;
 
                         LOG.info("The consumer thread is terminating the consumption procedure");
                         break;

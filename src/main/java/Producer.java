@@ -56,7 +56,6 @@ public class Producer extends Thread {
 
                     LOG.info("We are terminating the character production and will process them.");
 
-                    currentThread().interrupt();
                     isKeepProducing.setFalse();
 
                     return;
