@@ -1,34 +1,37 @@
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Chaklader on Mar, 2021
  */
 public class EventProcessor {
 
-    private List<Event> events;
 
-    int size;
+    private final List<Event> events;
 
-    public EventProcessor(List<Event> events, int size) {
+    private final int sampleSize;
+
+
+    public EventProcessor(List<Event> events, int sampleSize) {
+
         this.events = events;
-        this.size = size;
+        this.sampleSize = sampleSize;
     }
 
 
-    protected String createString() {
+    protected String getStringUsingConsumedCharacters() {
 
-        String s = "";
+        List<Character> chars = events.stream().map(Event::getItem).collect(Collectors.toList());
 
-        for (Event event : events) {
+        return chars.stream()
+                   .map(String::valueOf)
+                   .collect(Collectors.joining());
 
-            String str = event.getC() + "";
-            s+= str;
-        }
-
-        return s;
     }
 
-    protected String createSample(String s){
+    protected String createSample(String s) {
+
+        System.out.println(sampleSize);
 
         return "EMETN";
     }

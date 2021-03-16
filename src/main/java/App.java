@@ -1,6 +1,8 @@
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.TransferQueue;
 import java.util.logging.Logger;
 
 /**
@@ -18,10 +20,10 @@ public class App {
         TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
         ExecutorService exService = Executors.newFixedThreadPool(2);
 
-        Producer producer = new Producer( transferQueue, "producer thread", 2);
+        Producer producer = new Producer(transferQueue, "producer thread");
         producer.start();
 
-        Consumer consumer = new Consumer(producer::isAlive, transferQueue, "consumer thread", 2);
+        Consumer consumer = new Consumer(producer::isAlive, transferQueue, "consumer thread");
         consumer.start();
 
 //        exService.execute(producer);
@@ -38,10 +40,11 @@ public class App {
 //        }
 
 
-        if(producer.isInterrupted()){
+        if (producer.isInterrupted()) {
 
             producer.interrupt();
-            System.out.println("Producer is interrupted");
+
+            LOG.info("Producer is interrupted and terminating it now ...");
         }
 
 //        if(producer.isAlive()){
@@ -54,10 +57,11 @@ public class App {
 //        consumer.join();
 
 
-        List<Event> sdds = consumer.getEvents();
+        List<Event> allConsumedEvents = consumer.getAllConsumedEvents();
 
-        EventProcessor processor = new EventProcessor(sdds, 5);
-        String v = processor.createString();
+        EventProcessor processor = new EventProcessor(allConsumedEvents, 5);
+
+        String v = processor.getStringUsingConsumedCharacters();
         String sample = processor.createSample(v);
 
         System.out.println(sample);

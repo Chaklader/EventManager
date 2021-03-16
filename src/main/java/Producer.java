@@ -1,6 +1,5 @@
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,26 +14,25 @@ import java.util.stream.Stream;
 public class Producer extends Thread {
 
 
-    private volatile boolean isRunning = false;
+    private static final Logger LOG = Logger.getLogger(Consumer.class.getName());
 
-    private static final Logger LOG = Logger.getLogger(Producer.class.getName());
 
     private final TransferQueue<Event> transferQueue;
-    private final String name;
-    final Integer numberOfMessagesToProduce;
-    final AtomicInteger numberOfProducedMessages = new AtomicInteger();
+
+    private final String threadName;
+
+    private final AtomicInteger numberOfProducedMessages = new AtomicInteger();
+
+    private final List<Character> characters = new ArrayList<>();
+
+    private final List<Event> events = new ArrayList<>();
 
 
-    final List<Event> events = new ArrayList<>();
-
-    Producer(TransferQueue<Event> transferQueue, String name, Integer numberOfMessagesToProduce) {
+    Producer(TransferQueue<Event> transferQueue, String threadName) {
 
         this.transferQueue = transferQueue;
-        this.name = name;
-        this.numberOfMessagesToProduce = numberOfMessagesToProduce;
+        this.threadName = threadName;
     }
-
-    List<Character> chs = new ArrayList<>();
 
 
     @Override
@@ -43,51 +41,46 @@ public class Producer extends Thread {
 
         synchronized (this) {
 
+            MutableBoolean isKeepProducing = new MutableBoolean(true);
 
-            MutableBoolean ongoing = new MutableBoolean(true);
+            Stream<Character> lettersStream = Stream.generate(this::generateRandomCharacter).takeWhile(bol -> isKeepProducing.getValue());
+            Stream<Character> producerStream = Stream.concat(lettersStream, Stream.of('\0'));
 
-            Stream<Character> generate = Stream.generate(this::generateRandomCharacter).takeWhile(bol -> ongoing.getValue());
 
-            Stream<Character> concat = Stream.concat(generate, Stream.of('\0'));
+            producerStream.takeWhile(produce -> isKeepProducing.booleanValue()).forEach(character -> {
 
-            concat.takeWhile(s -> ongoing.booleanValue()).forEach(character -> {
 
-//                if (isRunning) {
-//                    System.out.println();
-//                    return;
-//                }
+                boolean isTerminate = characters.size() % Parameters.LIST_SIZE == 0 && checkIfThresholdAttained(characters);
 
-                chs.add(character);
+                if (isTerminate) {
 
-                if(chs.size()%1000==0){
+                    LOG.info("We are terminating the character production and will process them.");
 
-                    System.out.println("Hello");
-                }
-
-                if (chs.size() == 1000 && check(chs)) {
-
-                    System.out.println("cant add more");
                     currentThread().interrupt();
-                    ongoing.setFalse();
+                    isKeepProducing.setFalse();
+
                     return;
                 }
 
-                LOG.info("Producer: " + name + " is waiting to transfer...");
+                characters.add(character);
+
+                LOG.info("Producer: " + threadName + " is waiting to transfer...");
 
                 try {
 
-                    Event myEvent = createEvent(character);
-
+                    Event myEvent = createNewEvent(character);
                     events.add(myEvent);
 
+                    boolean isEventAdded = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
 
-                    boolean added = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
+                    if (isEventAdded) {
 
-                    if (added) {
                         numberOfProducedMessages.incrementAndGet();
-                        LOG.info("/Producer: " + name + " transferred element: A");
+                        LOG.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
+
                     } else {
-                        LOG.info("can not add an element due to the timeout");
+
+                        LOG.info("can not add an event due to the timeout");
                     }
 
                 } catch (InterruptedException e) {
@@ -97,33 +90,20 @@ public class Producer extends Thread {
 
             });
         }
-
-
     }
 
 
-    public AtomicInteger getNumberOfProducedMessages() {
-        return numberOfProducedMessages;
-    }
-
-    private Event createEvent(char a){
+    private Event createNewEvent(char ch) {
 
         Event event = new Event();
 
-        event.setC(a);
+        int id = getNumberOfProducedMessages().get() + 1;
+
+        event.setItem(ch);
         event.setDate(new Date());
-        event.setId(getNumberOfProducedMessages().get());
+        event.setId(id);
 
         return event;
-
-    }
-
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public void setRunning(boolean running) {
-        isRunning = running;
     }
 
     private char generateRandomCharacter() {
@@ -134,11 +114,15 @@ public class Producer extends Thread {
     }
 
 
-    private boolean check(List<Character> list) {
+    /*
+     * if the last produced 1000 characters, if 100 of them matches with the condition,
+     * we will terminate producer.
+     *
+     * */
+    private boolean checkIfThresholdAttained(List<Character> list) {
 
         int count = 0;
-        boolean res = false;
-
+        boolean result = false;
 
         for (char character : list) {
 
@@ -150,15 +134,20 @@ public class Producer extends Thread {
 
                 count++;
 
-            if (count >= 100) {
+            if (count >= Parameters.THRESHOLD) {
 
-                res = true;
+                result = true;
                 break;
             }
         }
 
         list.clear();
-        return res;
+        return result;
+    }
+
+    public AtomicInteger getNumberOfProducedMessages() {
+
+        return numberOfProducedMessages;
     }
 
 

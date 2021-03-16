@@ -5,43 +5,36 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 
+
+
 public class Consumer extends Thread {
 
 
     private static final Logger LOG = Logger.getLogger(Consumer.class.getName());
 
+
     private final TransferQueue<Event> transferQueue;
 
-    private final String name;
+    private final String threadName;
 
-    final int numberOfMessagesToConsume;
+    private final AtomicInteger numberOfConsumedMessages = new AtomicInteger();
 
-    final AtomicInteger numberOfConsumedMessages = new AtomicInteger();
+    private final List<Event> totalEvents = new ArrayList<>();
 
-    final List<Event> events = new ArrayList<>();
-
-    volatile BooleanSupplier booleanSupplier;
+    private volatile BooleanSupplier booleanSupplier;
 
 
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    Consumer(BooleanSupplier booleanSupplier, TransferQueue<Event> transferQueue, String name, int numberOfMessagesToConsume) {
+    Consumer(BooleanSupplier booleanSupplier, TransferQueue<Event> transferQueue, String threadName) {
 
         this.transferQueue = transferQueue;
-        this.name = name;
-        this.numberOfMessagesToConsume = numberOfMessagesToConsume;
+        this.threadName = threadName;
 
         this.booleanSupplier = booleanSupplier;
 
     }
 
-    Event element;
-
     @Override
     public void run() {
-
 
         synchronized (this) {
 
@@ -49,28 +42,28 @@ public class Consumer extends Thread {
 
                 try {
 
-                    System.out.println("Producer alive " + booleanSupplier.getAsBoolean());
-                    LOG.info("Consumer: " + name + " is waiting to take element...");
+                    LOG.info("Consumer: " + threadName + " is waiting to take element...");
 
-                    element = transferQueue.take();
+                    LOG.info("Number of consumed message : " + numberOfConsumedMessages.intValue());
 
-                    char c = element.getC();
+                    Event event = transferQueue.take();
 
-                    System.out.println("Number of consimed message: " + numberOfConsumedMessages.intValue());
+                    char item = event.getItem();
 
-                    if (c == '\0') {
+                    if (item == '\0') {
 
+                        booleanSupplier = () -> false;
 
-                        booleanSupplier = ()-> false;
-                        LOG.info("Received the ending hook and terminating the consumption procedure");
+                        LOG.info("The consumer thread is terminating the consumption procedure");
                         break;
                     }
 
-                    longProcessing(element);
+                    processEvent(event);
 
-                    System.out.println("Consumer: " + name + " received element with messgae : " + c);
+                    LOG.info("Consumer: " + threadName + " received item with value : " + item);
 
                 } catch (InterruptedException e) {
+
                     e.printStackTrace();
                 }
 
@@ -78,12 +71,17 @@ public class Consumer extends Thread {
         }
     }
 
-    private void longProcessing(Event element) throws InterruptedException {
+    private void processEvent(Event element) throws InterruptedException {
 
         numberOfConsumedMessages.incrementAndGet();
-        events.add(element);
+        totalEvents.add(element);
 
         Thread.sleep(5);
+    }
+
+    public List<Event> getAllConsumedEvents() {
+
+        return totalEvents;
     }
 
 }
