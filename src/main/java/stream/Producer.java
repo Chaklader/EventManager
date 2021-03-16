@@ -1,4 +1,9 @@
+package stream;
+
+
+import models.Event;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import utils.Parameters;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,6 +14,10 @@ import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import static utils.Parameters.LIST_SIZE;
+
+
 
 
 public class Producer extends Thread {
@@ -27,7 +36,7 @@ public class Producer extends Thread {
 
 
 
-    Producer(TransferQueue<Event> transferQueue, String threadName) {
+    public Producer(TransferQueue<Event> transferQueue, String threadName) {
 
         this.transferQueue = transferQueue;
         this.threadName = threadName;
@@ -47,7 +56,7 @@ public class Producer extends Thread {
             lettersStream.takeWhile(produce -> isKeepProducing.booleanValue()).forEach(character -> {
 
 
-                boolean isTerminate = characters.size() % Parameters.LIST_SIZE == 0 && checkIfThresholdAttained(characters);
+                boolean isTerminate = characters.size() % LIST_SIZE == 0 && checkIfThresholdAttained(characters);
 
                 if (isTerminate) {
 
@@ -60,7 +69,7 @@ public class Producer extends Thread {
 
                 characters.add(character);
 
-                LOG.info("Producer: " + threadName + " is waiting to transfer...");
+                LOG.info("stream.Producer: " + threadName + " is waiting to transfer...");
 
                 try {
 
@@ -71,7 +80,7 @@ public class Producer extends Thread {
                     if (isEventAdded) {
 
                         numberOfProducedMessages.incrementAndGet();
-                        LOG.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
+                        LOG.info("stream.Producer: " + threadName + " transferred event with Id " + myEvent.getId());
 
                     } else {
 

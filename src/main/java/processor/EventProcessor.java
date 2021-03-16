@@ -1,3 +1,7 @@
+package processor;
+
+import models.Event;
+
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -25,7 +29,7 @@ public class EventProcessor {
     }
 
 
-    protected String getStringUsingConsumedCharacters() {
+    public String getStringUsingConsumedCharacters() {
 
         List<Character> chars = events.stream().map(Event::getItem).collect(Collectors.toList());
 
@@ -38,7 +42,7 @@ public class EventProcessor {
     /**
      * create a random sample with sample size using the large consumed string
      */
-    protected String createRandomSample(String consumedLargeString) {
+    public String createRandomSample(String consumedLargeString) {
 
         StringBuilder result = new StringBuilder();
         int N = consumedLargeString.length();

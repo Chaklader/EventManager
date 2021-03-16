@@ -1,3 +1,6 @@
+package stream;
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TransferQueue;
@@ -5,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 
+import models.Event;
 
 public class Consumer extends Thread {
 
@@ -20,10 +24,10 @@ public class Consumer extends Thread {
 
     private final List<Event> totalEvents = new ArrayList<>();
 
-    private volatile BooleanSupplier isProducerAlive;
+    private final BooleanSupplier isProducerAlive;
 
 
-    Consumer(BooleanSupplier isProducerAlive, TransferQueue<Event> transferQueue, String threadName) {
+    public Consumer(BooleanSupplier isProducerAlive, TransferQueue<Event> transferQueue, String threadName) {
 
         this.transferQueue = transferQueue;
         this.threadName = threadName;
@@ -42,7 +46,7 @@ public class Consumer extends Thread {
 
                     LOG.info("Condition of the producer thread is alive? "+ isProducerAlive.getAsBoolean());
 
-                    LOG.info("Consumer: " + threadName + " is waiting to take element...");
+                    LOG.info("stream.Consumer: " + threadName + " is waiting to take element...");
 
                     LOG.info("Number of consumed message : " + numberOfConsumedMessages.intValue());
 
@@ -52,7 +56,7 @@ public class Consumer extends Thread {
 
                     processEvent(event);
 
-                    LOG.info("Consumer: " + threadName + " received item with value : " + item);
+                    LOG.info("stream.Consumer: " + threadName + " received item with value : " + item);
 
                 } catch (InterruptedException e) {
 

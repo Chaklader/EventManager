@@ -1,3 +1,5 @@
+package models;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
