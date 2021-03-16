@@ -12,7 +12,7 @@ public class EventProcessor {
 
     private final int sampleSize;
 
-    private Random random;
+    private final Random random;
 
 
     public EventProcessor(List<Event> events, int sampleSize) {
