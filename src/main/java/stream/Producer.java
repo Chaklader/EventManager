@@ -5,10 +5,7 @@ import models.Event;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import utils.Parameters;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,8 +13,6 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static utils.Parameters.LIST_SIZE;
-
-
 
 
 public class Producer extends Thread {
@@ -33,7 +28,6 @@ public class Producer extends Thread {
     private final AtomicInteger numberOfProducedMessages = new AtomicInteger();
 
     private final List<Character> characters = new ArrayList<>();
-
 
 
     public Producer(TransferQueue<Event> transferQueue, String threadName) {
@@ -57,8 +51,9 @@ public class Producer extends Thread {
 
 
                 boolean isTerminate = characters.size() % LIST_SIZE == 0 && checkIfThresholdAttained(characters);
+                boolean isSame = checkIfLastThreeItemsSame(characters);
 
-                if (isTerminate) {
+                if (isTerminate || isSame) {
 
                     LOG.info("We are terminating the character production and will process them.");
 
@@ -80,7 +75,7 @@ public class Producer extends Thread {
                     if (isEventAdded) {
 
                         numberOfProducedMessages.incrementAndGet();
-                        LOG.info("stream.Producer: " + threadName + " transferred event with Id " + myEvent.getId());
+                        LOG.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
 
                     } else {
 
@@ -100,7 +95,7 @@ public class Producer extends Thread {
 
         Event event = new Event();
 
-        int id = getNumberOfProducedMessages().get() + 1;
+        int id = getMessagesCount() + 1;
 
         event.setItem(ch);
         event.setDate(new Date());
@@ -117,10 +112,16 @@ public class Producer extends Thread {
     }
 
 
+    public int getMessagesCount() {
+
+        return numberOfProducedMessages.get();
+    }
+
     /*
+     * condition: 1
+     *
      * if the last produced 1000 characters, if 100 of them matches with the condition,
      * we will terminate producer.
-     *
      * */
     private boolean checkIfThresholdAttained(List<Character> list) {
 
@@ -148,10 +149,31 @@ public class Producer extends Thread {
         return result;
     }
 
-    public AtomicInteger getNumberOfProducedMessages() {
 
-        return numberOfProducedMessages;
+    /**
+     * condition: 2
+     * <p>
+     * find if this is unique list and the last 4 items of the list is same
+     */
+    private boolean checkIfLastThreeItemsSame(List<Character> list) {
+
+        if (list.size() < 100) {
+
+            return false;
+        }
+
+        List<Character> tail = list.subList(Math.max(list.size() - 4, 0), list.size());
+
+        Set<Character> set = new HashSet<>(tail);
+
+        boolean bol = set.size() == 1;
+
+        if(bol){
+
+            LOG.info("Last 3 items of the list is same and hence we will terminate the producer "+ tail.toString());
+        }
+
+        return bol;
     }
-
 
 }

@@ -1,14 +1,14 @@
 package stream;
 
 
+import models.Event;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
-
-import models.Event;
 
 public class Consumer extends Thread {
 
@@ -44,19 +44,23 @@ public class Consumer extends Thread {
 
                 try {
 
-                    LOG.info("Condition of the producer thread is alive? "+ isProducerAlive.getAsBoolean());
+                    LOG.info("Condition of the producer thread is alive? " + isProducerAlive.getAsBoolean());
 
                     LOG.info("stream.Consumer: " + threadName + " is waiting to take element...");
 
                     LOG.info("Number of consumed message : " + numberOfConsumedMessages.intValue());
 
+
+
                     Event event = transferQueue.take();
 
-                    char item = event.getItem();
+                    char itemCharacter = event.getItem();
+
+                    LOG.info("stream.Consumer: " + threadName + " received item with id " + event.getId() + " and value : " + itemCharacter);
+
+
 
                     processEvent(event);
-
-                    LOG.info("stream.Consumer: " + threadName + " received item with value : " + item);
 
                 } catch (InterruptedException e) {
 
@@ -67,7 +71,7 @@ public class Consumer extends Thread {
         }
     }
 
-    private void processEvent(Event element) throws InterruptedException {
+    private synchronized void processEvent(Event element) throws InterruptedException {
 
         numberOfConsumedMessages.incrementAndGet();
         totalEvents.add(element);
