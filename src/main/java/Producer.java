@@ -25,7 +25,6 @@ public class Producer extends Thread {
 
     private final List<Character> characters = new ArrayList<>();
 
-    private final List<Event> events = new ArrayList<>();
 
 
     Producer(TransferQueue<Event> transferQueue, String threadName) {
@@ -44,10 +43,8 @@ public class Producer extends Thread {
             MutableBoolean isKeepProducing = new MutableBoolean(true);
 
             Stream<Character> lettersStream = Stream.generate(this::generateRandomCharacter).takeWhile(bol -> isKeepProducing.getValue());
-            Stream<Character> producerStream = Stream.concat(lettersStream, Stream.of('\0'));
 
-
-            producerStream.takeWhile(produce -> isKeepProducing.booleanValue()).forEach(character -> {
+            lettersStream.takeWhile(produce -> isKeepProducing.booleanValue()).forEach(character -> {
 
 
                 boolean isTerminate = characters.size() % Parameters.LIST_SIZE == 0 && checkIfThresholdAttained(characters);
@@ -68,7 +65,6 @@ public class Producer extends Thread {
                 try {
 
                     Event myEvent = createNewEvent(character);
-                    events.add(myEvent);
 
                     boolean isEventAdded = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
 
@@ -90,7 +86,6 @@ public class Producer extends Thread {
             });
         }
     }
-
 
     private Event createNewEvent(char ch) {
 

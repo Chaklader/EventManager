@@ -40,6 +40,8 @@ public class Consumer extends Thread {
 
                 try {
 
+                    LOG.info("Condition of the producer thread is alive? "+ isProducerAlive.getAsBoolean());
+
                     LOG.info("Consumer: " + threadName + " is waiting to take element...");
 
                     LOG.info("Number of consumed message : " + numberOfConsumedMessages.intValue());
@@ -47,14 +49,6 @@ public class Consumer extends Thread {
                     Event event = transferQueue.take();
 
                     char item = event.getItem();
-
-                    if (item == '\0') {
-
-                        isProducerAlive = () -> false;
-
-                        LOG.info("The consumer thread is terminating the consumption procedure");
-                        break;
-                    }
 
                     processEvent(event);
 
