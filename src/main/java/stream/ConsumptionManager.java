@@ -36,6 +36,12 @@ public class ConsumptionManager extends Thread {
     }
 
 
+    public List<Event> getAllConsumedEvents() {
+
+        return totalEvents;
+    }
+
+
     @Override
     public void run() {
 
@@ -43,7 +49,6 @@ public class ConsumptionManager extends Thread {
 
 
             /**
-             *
              * consumer manager thread will only run till the producer is creating the character items
              */
             while (isProducerAlive.getAsBoolean()) {
@@ -54,9 +59,9 @@ public class ConsumptionManager extends Thread {
                     LOG.info("Number of consumed message : " + numberOfConsumedMessages.intValue());
 
 
-                    Event event = transferQueue.take();
+                    Event consumedEvent = transferQueue.take();
 
-                    char itemCharacter = event.getItem();
+                    char itemCharacter = consumedEvent.getItem();
 
 
                     if (itemCharacter == '\0') {
@@ -66,9 +71,9 @@ public class ConsumptionManager extends Thread {
                         break;
                     }
 
-                    LOG.info("stream.Consumer: " + threadName + " received item with id " + event.getId() + " and value : " + itemCharacter);
+                    LOG.info("stream.Consumer: " + threadName + " received item with id " + consumedEvent.getId() + " and value : " + itemCharacter);
 
-                    processEvent(event);
+                    processEvent(consumedEvent);
 
                 } catch (InterruptedException e) {
 
@@ -87,11 +92,6 @@ public class ConsumptionManager extends Thread {
         totalEvents.add(element);
 
         Thread.sleep(5);
-    }
-
-    public List<Event> getAllConsumedEvents() {
-
-        return totalEvents;
     }
 
 }
