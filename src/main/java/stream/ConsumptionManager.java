@@ -10,10 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 
-public class Consumer extends Thread {
+public class ConsumptionManager extends Thread {
 
 
-    private static final Logger LOG = Logger.getLogger(Consumer.class.getName());
+    private static final Logger LOG = Logger.getLogger(ConsumptionManager.class.getName());
 
 
     private final TransferQueue<Event> transferQueue;
@@ -27,7 +27,7 @@ public class Consumer extends Thread {
     private final BooleanSupplier isProducerAlive;
 
 
-    public Consumer(BooleanSupplier isProducerAlive, TransferQueue<Event> transferQueue, String threadName) {
+    public ConsumptionManager(BooleanSupplier isProducerAlive, TransferQueue<Event> transferQueue, String threadName) {
 
         this.transferQueue = transferQueue;
         this.threadName = threadName;

@@ -2,8 +2,8 @@
 
 import models.Event;
 import processor.EventProcessor;
-import stream.Consumer;
-import stream.Producer;
+import stream.ConsumptionManager;
+import stream.ProductionManager;
 import utils.Parameters;
 
 import java.util.List;
@@ -27,18 +27,18 @@ public class App {
 
         TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
 
-        Producer producer = new Producer(transferQueue, "producer thread");
-        producer.start();
+        ProductionManager productionManager = new ProductionManager(transferQueue, "producer thread");
+        productionManager.start();
 
-        Consumer consumer = new Consumer(producer::isAlive, transferQueue, "consumer thread");
-        consumer.start();
+        ConsumptionManager consumptionManager = new ConsumptionManager(productionManager::isAlive, transferQueue, "consumer thread");
+        consumptionManager.start();
 
-        producer.join();
-        consumer.join();
+        productionManager.join();
+        consumptionManager.join();
 
         LOG.info("Consumer and producer threads are termination and we will create the random sample from the generated string...");
 
-        List<Event> allConsumedEvents = consumer.getAllConsumedEvents();
+        List<Event> allConsumedEvents = consumptionManager.getAllConsumedEvents();
 
         EventProcessor processor = new EventProcessor(allConsumedEvents, Parameters.SAMPLE_SIZE);
 
