@@ -21,9 +21,11 @@ public class App {
     private static final Logger LOG = Logger.getLogger(App.class.getName());
 
 
+
     private static ProductionManager productionManager;
 
     private static ConsumptionManager consumptionManager;
+
 
 
     static {
@@ -40,7 +42,7 @@ public class App {
             productionManager.join();
             consumptionManager.join();
 
-            LOG.info("Consumer and producer threads are termination and we will create the random sample from the generated string...");
+            LOG.info("Transfer completed and consumer/ producer manager terminated their process!");
 
         } catch (InterruptedException e) {
 
@@ -49,20 +51,29 @@ public class App {
     }
 
 
-
-    public static void main(String[] args) {
-
+    private static String createRandomSample(int randomSampleSize) {
 
         List<Event> allConsumedEvents = consumptionManager.getAllConsumedEvents();
 
-        EventProcessor processor = new EventProcessor(allConsumedEvents, Parameters.SAMPLE_SIZE);
+        EventProcessor processor = new EventProcessor(allConsumedEvents, randomSampleSize);
 
         String consumedStr = processor.getStringUsingConsumedCharacters();
         String randomSampleRes = processor.createRandomSample(consumedStr);
 
+        LOG.info("Generated random sample from the consumed string ..");
 
-        LOG.info("Generated random sample from the consumed string: " + randomSampleRes);
+        return randomSampleRes;
+    }
 
-        LOG.info("Transfer completed");
+
+
+
+    public static void main(String[] args) {
+
+
+        String randomSample = createRandomSample(Parameters.SAMPLE_SIZE);
+
+        LOG.info("Created random sample : " + randomSample);
+
     }
 }
