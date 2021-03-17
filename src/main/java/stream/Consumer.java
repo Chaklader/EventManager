@@ -58,8 +58,6 @@ public class Consumer extends Thread {
 
                     LOG.info("stream.Consumer: " + threadName + " received item with id " + event.getId() + " and value : " + itemCharacter);
 
-
-
                     processEvent(event);
 
                 } catch (InterruptedException e) {

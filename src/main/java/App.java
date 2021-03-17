@@ -36,6 +36,8 @@ public class App {
         producer.join();
         consumer.join();
 
+        LOG.info("Consumer and producer threads are termination and we will create the random sample from the generated string...");
+
         List<Event> allConsumedEvents = consumer.getAllConsumedEvents();
 
         EventProcessor processor = new EventProcessor(allConsumedEvents, Parameters.SAMPLE_SIZE);
