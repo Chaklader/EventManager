@@ -17,8 +17,16 @@ public class Parameters {
 
 
 
-    public final static Pattern LINE_PATTERN = Pattern.compile("\\d >.*\\.txt");
+   public static Pattern LINE_PATTERN = Pattern.compile("\\d >.*\\.txt");
 
-    public final static Pattern DELIMITER = Pattern.compile("\\s+>\\s+");
+    public static Pattern DELIMITER = Pattern.compile("\\s+>\\s+");
 
+
+    public static int getSampleSize() {
+        return SAMPLE_SIZE;
+    }
+
+    public static void setSampleSize(int sampleSize) {
+        SAMPLE_SIZE = sampleSize;
+    }
 }

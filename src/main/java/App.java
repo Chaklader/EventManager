@@ -2,11 +2,15 @@
 
 import exceptions.ParsingException;
 import io.vavr.control.Try;
+import lombok.extern.slf4j.Slf4j;
 import models.Event;
+import picocli.CommandLine.Command;
 import processor.EventProcessor;
 import stream.ConsumptionManager;
 import stream.ProductionManager;
 import utils.Parameters;
+
+import java.util.regex.Pattern;
 
 import java.util.List;
 import java.util.Scanner;
@@ -15,10 +19,15 @@ import java.util.concurrent.TransferQueue;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+import static utils.Parameters.DELIMITER;
+import static utils.Parameters.LINE_PATTERN;
+
 
 /**
  * Created by Chaklader on Mar, 2021
  */
+@Command
+@Slf4j
 public class App {
 
 
@@ -29,8 +38,45 @@ public class App {
 
     private static ConsumptionManager consumptionManager;
 
+    private static String fileLoc;
+
 
     static {
+            argumentMismatched:
+
+        {
+//            String systemProperty = System.getProperty("sun.java.command");
+            String systemProperty = "5 < input.txt";
+
+
+            if (!systemProperty.isEmpty()) {
+
+                boolean isMatched = LINE_PATTERN.matcher(systemProperty).matches();
+
+                if (!isMatched) {
+
+                    log.error("We received program arguments but that doesn't matched with the desired input");
+
+                    break argumentMismatched;
+                }
+
+
+                Scanner scanner = new Scanner(systemProperty).useDelimiter(DELIMITER);
+
+                while (scanner.hasNext()) {
+
+                    int sampleSize = getTokenValueOrElseThrow(scanner::nextInt, "", scanner);
+                    Parameters.setSampleSize(sampleSize);
+
+                    String fileLoc = getTokenValueOrElseThrow(scanner::next, "", scanner);
+
+                    System.out.println("He");
+                }
+
+
+            }
+        }
+
 
         try {
             TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
@@ -83,6 +129,18 @@ public class App {
     public static void main(String[] args) {
 
 
+        if (args == null || args.length == 0 || args[0].isEmpty()) {
+
+            String randomSample = createRandomSample(Parameters.SAMPLE_SIZE);
+
+            LOG.info("Created random sample : " + randomSample);
+
+            return;
+        }
+
+        int length = args.length;
+        System.out.println(length);
+
 //        String line = "5 > input.txt";
 //
 //        boolean isMatched = LINE_PATTERN.matcher(line).matches();
@@ -105,10 +163,6 @@ public class App {
 //            System.out.println("location " + fileLocationb);
 //        }
 
-
-        String randomSample = createRandomSample(Parameters.SAMPLE_SIZE);
-
-        LOG.info("Created random sample : " + randomSample);
 
     }
 }
