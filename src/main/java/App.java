@@ -10,14 +10,13 @@ import stream.ConsumptionManager;
 import stream.ProductionManager;
 import utils.Parameters;
 
-import java.util.regex.Pattern;
-
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TransferQueue;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import static utils.Parameters.DELIMITER;
 import static utils.Parameters.LINE_PATTERN;
@@ -45,8 +44,9 @@ public class App {
             argumentMismatched:
 
         {
-//            String systemProperty = System.getProperty("sun.java.command");
-            String systemProperty = "5 < input.txt";
+            String systemProperty = System.getProperty("sun.java.command")
+                                        .replaceAll(App.class.getSimpleName(), "")
+                                        .replaceAll("\\s+", "");
 
 
             if (!systemProperty.isEmpty()) {
@@ -65,15 +65,16 @@ public class App {
 
                 while (scanner.hasNext()) {
 
-                    int sampleSize = getTokenValueOrElseThrow(scanner::nextInt, "", scanner);
+                    int sampleSize = getTokenValueOrElseThrow(scanner::nextInt, "SAMPLE_SIZE", scanner);
                     Parameters.setSampleSize(sampleSize);
 
-                    String fileLoc = getTokenValueOrElseThrow(scanner::next, "", scanner);
+                    String fileLoc = getTokenValueOrElseThrow(scanner::next, "FILE_LOCATION", scanner);
 
                     System.out.println("He");
                 }
 
 
+                break argumentMismatched;
             }
         }
 
@@ -121,8 +122,7 @@ public class App {
 
             () -> new ParsingException(
                 lineNum,
-                tokenName,
-                scanner.hasNext() ? scanner.next() : "<EOL>"));
+                tokenName));
     }
 
 
