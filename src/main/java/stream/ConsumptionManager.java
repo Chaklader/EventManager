@@ -35,26 +35,36 @@ public class ConsumptionManager extends Thread {
         this.isProducerAlive = isProducerAlive;
     }
 
+
     @Override
     public void run() {
 
         synchronized (this) {
 
+
+            /**
+             *
+             * consumer manager thread will only run till the producer is creating the character items
+             */
             while (isProducerAlive.getAsBoolean()) {
 
                 try {
-
-                    LOG.info("Condition of the producer thread is alive? " + isProducerAlive.getAsBoolean());
-
                     LOG.info("stream.Consumer: " + threadName + " is waiting to take element...");
 
                     LOG.info("Number of consumed message : " + numberOfConsumedMessages.intValue());
 
 
-
                     Event event = transferQueue.take();
 
                     char itemCharacter = event.getItem();
+
+
+                    if (itemCharacter == '\0') {
+
+                        LOG.info("Terminating the item character consumption after receiving an especial instruction!!");
+
+                        break;
+                    }
 
                     LOG.info("stream.Consumer: " + threadName + " received item with id " + event.getId() + " and value : " + itemCharacter);
 
@@ -66,6 +76,8 @@ public class ConsumptionManager extends Thread {
                 }
 
             }
+
+            LOG.info("The production manager thread is not alive anymore and hence, we terminate the consumption procedure");
         }
     }
 

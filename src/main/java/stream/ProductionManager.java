@@ -52,7 +52,8 @@ public class ProductionManager extends Thread {
 
             MutableBoolean isKeepProducing = new MutableBoolean(true);
 
-            Stream<Character> lettersStream = Stream.generate(RandomUtils::generateRandomCharacter).takeWhile(isProduceMore -> isKeepProducing.getValue());
+            Stream<Character> generatedStream = Stream.generate(RandomUtils::generateRandomCharacter).takeWhile(isProduceMore -> isKeepProducing.getValue());
+            Stream<Character> lettersStream = Stream.concat(generatedStream, Stream.of('\0'));
 
             producer.produceCharacterItems(lettersStream, isKeepProducing);
         }
@@ -65,12 +66,7 @@ public class ProductionManager extends Thread {
     }
 
 
-
-
-
-
     private class Producer {
-
 
 
         /**
