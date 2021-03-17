@@ -1,6 +1,7 @@
 package stream;
 
 
+import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import utils.RandomUtils;
@@ -14,10 +15,10 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 
+
+@Slf4j
 public class ProductionManager extends Thread {
 
-
-    private static final Logger LOG = Logger.getLogger(ProductionManager.class.getName());
 
 
     private final TransferQueue<Event> transferQueue;
@@ -81,7 +82,7 @@ public class ProductionManager extends Thread {
 
                 if (isTerminate) {
 
-                    LOG.info("We are terminating the character production and will process them.");
+                    log.info("We are terminating the character production and will process them.");
 
                     isKeepProducing.setFalse();
 
@@ -90,7 +91,7 @@ public class ProductionManager extends Thread {
 
                 characters.add(character);
 
-                LOG.info("stream.Producer: " + threadName + " is waiting to transfer...");
+                log.info("stream.Producer: " + threadName + " is waiting to transfer...");
 
                 try {
 
@@ -101,11 +102,11 @@ public class ProductionManager extends Thread {
                     if (isEventAdded) {
 
                         numberOfProducedMessages.incrementAndGet();
-                        LOG.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
+                        log.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
 
                     } else {
 
-                        LOG.info("can not add an event due to the timeout");
+                        log.info("can not add an event due to the timeout");
                     }
 
                 } catch (InterruptedException e) {

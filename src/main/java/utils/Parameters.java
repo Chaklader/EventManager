@@ -1,6 +1,6 @@
 package utils;
 
-import java.util.function.Function;
+import java.util.regex.Pattern;
 
 /**
  * Created by Chaklader on Mar, 2021
@@ -14,5 +14,11 @@ public class Parameters {
 
 
     public static int SAMPLE_SIZE = 5;
+
+
+
+    public final static Pattern LINE_PATTERN = Pattern.compile("\\d >.*\\.txt");
+
+    public final static Pattern DELIMITER = Pattern.compile("\\s+>\\s+");
 
 }

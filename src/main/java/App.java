@@ -1,5 +1,7 @@
 
 
+import exceptions.ParsingException;
+import io.vavr.control.Try;
 import models.Event;
 import processor.EventProcessor;
 import stream.ConsumptionManager;
@@ -7,8 +9,10 @@ import stream.ProductionManager;
 import utils.Parameters;
 
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TransferQueue;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 
@@ -21,11 +25,9 @@ public class App {
     private static final Logger LOG = Logger.getLogger(App.class.getName());
 
 
-
     private static ProductionManager productionManager;
 
     private static ConsumptionManager consumptionManager;
-
 
 
     static {
@@ -66,9 +68,42 @@ public class App {
     }
 
 
+    private static <T> T getTokenValueOrElseThrow(Supplier<T> supplier, String tokenName, Scanner scanner) throws ParsingException {
+
+        int lineNum = 1;
+        return Try.ofSupplier(supplier).getOrElseThrow(
+
+            () -> new ParsingException(
+                lineNum,
+                tokenName,
+                scanner.hasNext() ? scanner.next() : "<EOL>"));
+    }
 
 
     public static void main(String[] args) {
+
+
+//        String line = "5 > input.txt";
+//
+//        boolean isMatched = LINE_PATTERN.matcher(line).matches();
+//
+//
+//        if (isMatched) {
+//
+//            System.out.println("matched");
+//        }
+//
+//        Scanner scanner = new Scanner(line).useDelimiter(DELIMITER);
+//
+//        while (scanner.hasNext()) {
+//
+//            int id = getTokenValueOrElseThrow(scanner::nextInt, "", scanner);
+//
+//            System.out.println("id " + id);
+//            String fileLocationb = getTokenValueOrElseThrow(scanner::next, "", scanner);
+//
+//            System.out.println("location " + fileLocationb);
+//        }
 
 
         String randomSample = createRandomSample(Parameters.SAMPLE_SIZE);

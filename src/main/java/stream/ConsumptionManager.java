@@ -1,6 +1,7 @@
 package stream;
 
 
+import lombok.extern.slf4j.Slf4j;
 import models.Event;
 
 import java.util.ArrayList;
@@ -10,10 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Logger;
 
+
+@Slf4j
 public class ConsumptionManager extends Thread {
 
-
-    private static final Logger LOG = Logger.getLogger(ConsumptionManager.class.getName());
 
 
     private final TransferQueue<Event> transferQueue;
@@ -54,9 +55,9 @@ public class ConsumptionManager extends Thread {
             while (isProducerAlive.getAsBoolean()) {
 
                 try {
-                    LOG.info("stream.Consumer: " + threadName + " is waiting to take element...");
+                    log.info("stream.Consumer: " + threadName + " is waiting to take element...");
 
-                    LOG.info("Number of consumed message : " + numberOfConsumedMessages.intValue());
+                    log.info("Number of consumed message : " + numberOfConsumedMessages.intValue());
 
 
                     Event consumedEvent = transferQueue.take();
@@ -66,12 +67,12 @@ public class ConsumptionManager extends Thread {
 
                     if (itemCharacter == '\0') {
 
-                        LOG.info("Terminating the item character consumption after receiving an especial instruction!!");
+                        log.info("Terminating the item character consumption after receiving an especial instruction!!");
 
                         break;
                     }
 
-                    LOG.info("stream.Consumer: " + threadName + " received item with id " + consumedEvent.getId() + " and value : " + itemCharacter);
+                    log.info("stream.Consumer: " + threadName + " received item with id " + consumedEvent.getId() + " and value : " + itemCharacter);
 
                     processEvent(consumedEvent);
 
@@ -82,7 +83,7 @@ public class ConsumptionManager extends Thread {
 
             }
 
-            LOG.info("The production manager thread is not alive anymore and hence, we terminate the consumption procedure");
+            log.info("The production manager thread is not alive anymore and hence, we terminate the consumption procedure");
         }
     }
 

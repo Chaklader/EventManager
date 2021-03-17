@@ -20,8 +20,6 @@ public class ProducerBreakingConditionImpl implements ProducerBreakingCondition 
 
 
 
-
-
     /**
      * this base condition will check all the breaking conditions and inform the producer
      */

@@ -2,6 +2,7 @@ package models;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.Date;
  */
 @Data
 @NoArgsConstructor
+@Slf4j
 public class Event {
 
     Integer id;
@@ -35,6 +37,7 @@ public class Event {
         event.setTimeStamp(timeStamp);
         event.setId(id);
 
+        log.info("created a new event with id : "+ id);
         return event;
     }
 }
