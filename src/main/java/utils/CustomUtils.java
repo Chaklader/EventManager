@@ -2,12 +2,12 @@ package utils;
 
 import exceptions.ParsingException;
 import io.vavr.control.Try;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Random;
 import java.util.function.Supplier;
+
+
+
 
 /**
  * Created by Chaklader on Mar, 2021
@@ -15,9 +15,13 @@ import java.util.function.Supplier;
 public class CustomUtils {
 
 
+
+
     private static final Random rnd = new Random();
 
     private static  String fileLoc;
+
+
 
 
     public static char generateRandomCharacter() {
@@ -31,11 +35,11 @@ public class CustomUtils {
         return (c >= 'A' && c <= 'Z') || c == '\0';
     }
 
-    public static <T> T getTokenValueOrElseThrow(Supplier<T> supplier, String tokenType) throws ParsingException {
+    public static <T> T getTokenValueOrElseThrow(Supplier<T> supplier, String tokenTypeName) throws ParsingException {
 
         return Try.ofSupplier(supplier).getOrElseThrow(
 
-            () -> new ParsingException(tokenType)
+            () -> new ParsingException(tokenTypeName)
         );
     }
 

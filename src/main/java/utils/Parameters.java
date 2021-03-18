@@ -1,7 +1,5 @@
 package utils;
 
-import lombok.Data;
-
 import java.util.regex.Pattern;
 
 /**
@@ -18,8 +16,7 @@ public class Parameters {
     public static int SAMPLE_SIZE = 5;
 
 
-
-   public static Pattern LINE_PATTERN = Pattern.compile("\\d<.*\\.txt");
+    public static Pattern LINE_PATTERN = Pattern.compile("\\d<.*\\.txt");
 
     public static Pattern DELIMITER = Pattern.compile("<");
 

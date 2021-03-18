@@ -31,7 +31,6 @@ import static utils.Parameters.LINE_PATTERN;
  */
 @Command
 @Slf4j
-@Data
 public class App {
 
 

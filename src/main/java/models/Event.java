@@ -15,11 +15,14 @@ import java.util.Date;
 @Slf4j
 public class Event {
 
+
+
     Integer id;
 
     Character item;
 
     String timeStamp;
+
 
 
     /**

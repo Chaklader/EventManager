@@ -2,7 +2,6 @@ package stream;
 
 
 import com.google.common.primitives.Chars;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -17,8 +16,8 @@ import java.util.stream.Stream;
 
 
 @Slf4j
-@Data
 public class ProductionManager extends Thread {
+
 
 
     private final TransferQueue<Event> transferQueue;
@@ -34,6 +33,8 @@ public class ProductionManager extends Thread {
     private final Producer producer;
 
 
+
+    // check if the stream should produce more items
     MutableBoolean isKeepProducing = new MutableBoolean(true);
 
     char[] itemCharsArray;

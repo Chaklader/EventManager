@@ -15,7 +15,6 @@ import java.util.function.BooleanSupplier;
 public class ConsumptionManager extends Thread {
 
 
-
     private final TransferQueue<Event> transferQueue;
 
     private final String threadName;
@@ -25,7 +24,6 @@ public class ConsumptionManager extends Thread {
     private final List<Event> totalEvents = new ArrayList<>();
 
     private final BooleanSupplier isProducerAlive;
-
 
 
     public ConsumptionManager(BooleanSupplier isProducerAlive, TransferQueue<Event> transferQueue, String threadName) {

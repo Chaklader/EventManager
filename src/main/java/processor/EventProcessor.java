@@ -38,9 +38,7 @@ public class EventProcessor {
 
         final var originalInput = chars.stream().map(String::valueOf).collect(Collectors.joining());
 
-        String encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
-
-        return encodedString;
+        return Base64.getEncoder().encodeToString(originalInput.getBytes());
     }
 
 
