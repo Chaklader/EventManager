@@ -1,24 +1,24 @@
 package stream;
 
 
+import com.google.common.primitives.Chars;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import utils.RandomUtils;
+import utils.CustomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 
-
 @Slf4j
+@Data
 public class ProductionManager extends Thread {
-
 
 
     private final TransferQueue<Event> transferQueue;
@@ -27,12 +27,35 @@ public class ProductionManager extends Thread {
 
     private final AtomicInteger numberOfProducedMessages = new AtomicInteger();
 
-    private final List<Character> characters = new ArrayList<>();
+    protected final List<Character> characters = new ArrayList<>();
 
     private final ProducerBreakingConditionImpl producerBreakingCondition;
 
     private final Producer producer;
 
+    private boolean isReadArgs;
+
+    MutableBoolean isKeepProducing = new MutableBoolean(true);
+
+    Stream<Character> charactersStream;
+
+    char[] chgar;
+
+    public char[] getChgar() {
+        return chgar;
+    }
+
+    public void setChgar(char[] chgar) {
+        this.chgar = chgar;
+    }
+
+    //    public boolean isReadArgs() {
+//        return isReadArgs;
+//    }
+//
+//    public void setReadArgs(boolean readArgs) {
+//        isReadArgs = readArgs;
+//    }
 
     public ProductionManager(TransferQueue<Event> transferQueue, String threadName) {
 
@@ -51,9 +74,10 @@ public class ProductionManager extends Thread {
 
         synchronized (this) {
 
-            MutableBoolean isKeepProducing = new MutableBoolean(true);
+//            MutableBoolean isKeepProducing = new MutableBoolean(true);
 
-            Stream<Character> generatedStream = Stream.generate(RandomUtils::generateRandomCharacter).takeWhile(isProduceMore -> isKeepProducing.getValue());
+//            Stream<Character> generatedStream = Stream.generate(CustomUtils::generateRandomCharacter).takeWhile(isProduceMore -> isKeepProducing.getValue());
+            Stream<Character> generatedStream = createCharacterStream();
             Stream<Character> lettersStream = Stream.concat(generatedStream, Stream.of('\0'));
 
             producer.produceCharacterItems(lettersStream, isKeepProducing);
@@ -66,6 +90,22 @@ public class ProductionManager extends Thread {
         return numberOfProducedMessages.get();
     }
 
+    public Stream<Character> createCharacterStream() {
+
+        System.out.println("Hello");
+
+        if (chgar == null || chgar.length==0) {
+
+            return Stream.generate(CustomUtils::generateRandomCharacter).takeWhile(isProduceMore -> isKeepProducing.getValue());
+        }
+
+
+        Stream<Character> chs = Chars.asList(chgar).stream().takeWhile(s -> isKeepProducing.getValue());
+
+        return chs;
+//        return charactersStream.takeWhile(isProduceMore -> isKeepProducing.getValue());
+    }
+
 
     private class Producer {
 
@@ -76,45 +116,93 @@ public class ProductionManager extends Thread {
         private synchronized void produceCharacterItems(Stream<Character> lettersStream, MutableBoolean isKeepProducing) {
 
 
-            lettersStream.takeWhile(produce -> isKeepProducing.booleanValue()).forEach(character -> {
+            io.vavr.collection.Stream.ofAll(lettersStream).zipWithIndex()
+                .filter(character -> CustomUtils.isLetterOrBlank(character._1())).forEach(
 
-                boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(characters);
+                character -> {
 
-                if (isTerminate) {
+                    char cItem = character._1();
 
-                    log.info("We are terminating the character production and will process them.");
+                    boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(characters);
 
-                    isKeepProducing.setFalse();
+                    if (isTerminate) {
 
-                    return;
-                }
+                        log.info("We are terminating the character production and will process them.");
 
-                characters.add(character);
+                        isKeepProducing.setFalse();
 
-                log.info("stream.Producer: " + threadName + " is waiting to transfer...");
-
-                try {
-
-                    Event myEvent = Event.createNewEvent(character, getMessagesCount());
-
-                    boolean isEventAdded = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
-
-                    if (isEventAdded) {
-
-                        numberOfProducedMessages.incrementAndGet();
-                        log.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
-
-                    } else {
-
-                        log.info("can not add an event due to the timeout");
+                        return;
                     }
 
-                } catch (InterruptedException e) {
+                    characters.add(cItem);
 
-                    e.printStackTrace();
+                    log.info("stream.Producer: " + threadName + " is waiting to transfer...");
+
+                    try {
+
+                        Event myEvent = Event.createNewEvent(cItem, getMessagesCount());
+
+                        boolean isEventAdded = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
+
+                        if (isEventAdded) {
+
+                            numberOfProducedMessages.incrementAndGet();
+                            log.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
+
+                        } else {
+
+                            log.info("can not add an event due to the timeout");
+                        }
+
+                    } catch (InterruptedException e) {
+
+                        e.printStackTrace();
+                    }
                 }
+            );
 
-            });
+
+//            lettersStream.takeWhile(produce -> isKeepProducing.booleanValue()).forEach(character -> {
+//
+//                boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(characters);
+//
+//                if (isTerminate) {
+//
+//                    log.info("We are terminating the character production and will process them.");
+//
+//                    isKeepProducing.setFalse();
+//
+//                    return;
+//                }
+//
+//                characters.add(character);
+//
+//                log.info("stream.Producer: " + threadName + " is waiting to transfer...");
+//
+//                try {
+//
+//                    Event myEvent = Event.createNewEvent(character, getMessagesCount());
+//
+//                    boolean isEventAdded = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
+//
+//                    if (isEventAdded) {
+//
+//                        numberOfProducedMessages.incrementAndGet();
+//                        log.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
+//
+//                    } else {
+//
+//                        log.info("can not add an event due to the timeout");
+//                    }
+//
+//                } catch (InterruptedException e) {
+//
+//                    e.printStackTrace();
+//                }
+//
+//            });
+
+
         }
 
     }

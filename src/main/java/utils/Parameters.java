@@ -1,5 +1,7 @@
 package utils;
 
+import lombok.Data;
+
 import java.util.regex.Pattern;
 
 /**

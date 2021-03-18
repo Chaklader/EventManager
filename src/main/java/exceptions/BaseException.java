@@ -5,11 +5,13 @@ import lombok.Getter;
 @Getter
 public class BaseException extends RuntimeException {
 
-    protected final int lineNumber;
 
-    public BaseException(String message, int lineNumber) {
+    protected final String tokenName;
+
+    public BaseException(String message, String tokenName) {
 
         super(message);
-        this.lineNumber = lineNumber;
+        this.tokenName = tokenName;
     }
+
 }

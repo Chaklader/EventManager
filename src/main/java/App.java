@@ -1,25 +1,29 @@
 
 
-import exceptions.ParsingException;
-import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import picocli.CommandLine.Command;
 import processor.EventProcessor;
 import stream.ConsumptionManager;
 import stream.ProductionManager;
+import utils.CustomUtils;
 import utils.Parameters;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TransferQueue;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static utils.Parameters.DELIMITER;
 import static utils.Parameters.LINE_PATTERN;
+
 
 
 /**
@@ -41,61 +45,92 @@ public class App {
 
 
     static {
-            argumentMismatched:
+
+
+        boolean isMatched = false;
+
+            argMisMatched:
 
         {
             String systemProperty = System.getProperty("sun.java.command")
-                                        .replaceAll(App.class.getSimpleName(), "")
+                                        .replaceAll(String.valueOf(MethodHandles.lookup().lookupClass().getName()), "")
                                         .replaceAll("\\s+", "");
 
 
             if (!systemProperty.isEmpty()) {
 
-                boolean isMatched = LINE_PATTERN.matcher(systemProperty).matches();
+                isMatched = LINE_PATTERN.matcher(systemProperty).matches();
 
                 if (!isMatched) {
 
                     log.error("We received program arguments but that doesn't matched with the desired input");
 
-                    break argumentMismatched;
+                    break argMisMatched;
                 }
-
 
                 Scanner scanner = new Scanner(systemProperty).useDelimiter(DELIMITER);
 
                 while (scanner.hasNext()) {
 
-                    int sampleSize = getTokenValueOrElseThrow(scanner::nextInt, "SAMPLE_SIZE", scanner);
+                    int sampleSize = CustomUtils.getTokenValueOrElseThrow(scanner::nextInt, "SAMPLE_SIZE");
                     Parameters.setSampleSize(sampleSize);
 
-                    String fileLoc = getTokenValueOrElseThrow(scanner::next, "FILE_LOCATION", scanner);
-
-                    System.out.println("He");
+                    String fileLoc = CustomUtils.getTokenValueOrElseThrow(scanner::next, "FILE_LOCATION");
+                    setFileLoc(fileLoc);
                 }
-
-
-                break argumentMismatched;
             }
+
+            isMatched = true;
         }
 
 
-        try {
+            label:
+        {
+
+
+            if (!isMatched) {
+
+                break label;
+            }
+
+
             TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
 
             productionManager = new ProductionManager(transferQueue, "producer thread");
-            productionManager.start();
-
             consumptionManager = new ConsumptionManager(productionManager::isAlive, transferQueue, "consumer thread");
-            consumptionManager.start();
 
-            productionManager.join();
-            consumptionManager.join();
+            try {
 
-            LOG.info("Transfer completed and consumer/ producer manager terminated their process!");
 
-        } catch (InterruptedException e) {
+                if (fileLoc != null && !fileLoc.isEmpty()) {
 
-            e.printStackTrace();
+                    char[] chars = Files.lines(Path.of(fileLoc), StandardCharsets.UTF_8).collect(Collectors.joining()).toCharArray();
+
+                    productionManager.setChgar(chars);
+
+//                    Stream<Character> chs = Chars.asList(chars).stream().takeWhile(s -> productionManager.getIsKeepProducing().getValue());
+
+                    productionManager.setReadArgs(true);
+//                    productionManager.setCharactersStream(chs);
+
+                    System.out.println(fileLoc);
+                }
+
+
+                productionManager.start();
+
+
+                consumptionManager.start();
+
+                productionManager.join();
+                consumptionManager.join();
+
+                LOG.info("Transfer completed and consumer/ producer manager terminated their process!");
+
+            } catch (InterruptedException | IOException e) {
+
+                e.printStackTrace();
+            }
         }
     }
 
@@ -115,54 +150,19 @@ public class App {
     }
 
 
-    private static <T> T getTokenValueOrElseThrow(Supplier<T> supplier, String tokenName, Scanner scanner) throws ParsingException {
-
-        int lineNum = 1;
-        return Try.ofSupplier(supplier).getOrElseThrow(
-
-            () -> new ParsingException(
-                lineNum,
-                tokenName));
-    }
-
-
     public static void main(String[] args) {
 
 
-        if (args == null || args.length == 0 || args[0].isEmpty()) {
+        String randomSample = createRandomSample(Parameters.SAMPLE_SIZE);
 
-            String randomSample = createRandomSample(Parameters.SAMPLE_SIZE);
+        LOG.info("Created random sample : " + randomSample);
+    }
 
-            LOG.info("Created random sample : " + randomSample);
+    public static String getFileLoc() {
+        return fileLoc;
+    }
 
-            return;
-        }
-
-        int length = args.length;
-        System.out.println(length);
-
-//        String line = "5 > input.txt";
-//
-//        boolean isMatched = LINE_PATTERN.matcher(line).matches();
-//
-//
-//        if (isMatched) {
-//
-//            System.out.println("matched");
-//        }
-//
-//        Scanner scanner = new Scanner(line).useDelimiter(DELIMITER);
-//
-//        while (scanner.hasNext()) {
-//
-//            int id = getTokenValueOrElseThrow(scanner::nextInt, "", scanner);
-//
-//            System.out.println("id " + id);
-//            String fileLocationb = getTokenValueOrElseThrow(scanner::next, "", scanner);
-//
-//            System.out.println("location " + fileLocationb);
-//        }
-
-
+    public static void setFileLoc(String fileLoc) {
+        App.fileLoc = fileLoc;
     }
 }
