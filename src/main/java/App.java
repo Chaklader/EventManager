@@ -1,5 +1,6 @@
 
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import picocli.CommandLine.Command;
@@ -25,12 +26,12 @@ import static utils.Parameters.DELIMITER;
 import static utils.Parameters.LINE_PATTERN;
 
 
-
 /**
  * Created by Chaklader on Mar, 2021
  */
 @Command
 @Slf4j
+@Data
 public class App {
 
 
@@ -40,8 +41,6 @@ public class App {
     private static ProductionManager productionManager;
 
     private static ConsumptionManager consumptionManager;
-
-    private static String fileLoc;
 
 
     static {
@@ -72,11 +71,10 @@ public class App {
 
                 while (scanner.hasNext()) {
 
-                    int sampleSize = CustomUtils.getTokenValueOrElseThrow(scanner::nextInt, "SAMPLE_SIZE");
+                    int sampleSize = CustomUtils.getTokenValueOrElseThrow(scanner::nextInt, "RANDOM_SAMPLE_SIZE");
                     Parameters.setSampleSize(sampleSize);
 
-                    String fileLoc = CustomUtils.getTokenValueOrElseThrow(scanner::next, "FILE_LOCATION");
-                    setFileLoc(fileLoc);
+                    CustomUtils.setFileLoc(CustomUtils.getTokenValueOrElseThrow(scanner::next, "FILE_LOCATION"));
                 }
             }
 
@@ -84,46 +82,43 @@ public class App {
         }
 
 
-            label:
+            argMisMatched:
         {
-
 
             if (!isMatched) {
 
-                break label;
+                log.error("We received program arguments but that can't read them due to type/ count mismatched ....");
+                break argMisMatched;
             }
 
 
             TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
 
             productionManager = new ProductionManager(transferQueue, "producer thread");
+
             consumptionManager = new ConsumptionManager(productionManager::isAlive, transferQueue, "consumer thread");
+
 
             try {
 
+                if (CustomUtils.getFileLoc() != null && !CustomUtils.getFileLoc().isEmpty()) {
 
-                if (fileLoc != null && !fileLoc.isEmpty()) {
+                    char[] chars = Files.lines(Path.of(CustomUtils.getFileLoc()), StandardCharsets.UTF_8).collect(Collectors.joining()).toCharArray();
 
-                    char[] chars = Files.lines(Path.of(fileLoc), StandardCharsets.UTF_8).collect(Collectors.joining()).toCharArray();
-
-                    productionManager.setChgar(chars);
-
-//                    Stream<Character> chs = Chars.asList(chars).stream().takeWhile(s -> productionManager.getIsKeepProducing().getValue());
-
-                    productionManager.setReadArgs(true);
-//                    productionManager.setCharactersStream(chs);
-
-                    System.out.println(fileLoc);
+                    productionManager.setItemCharsArray(chars);
                 }
+
 
 
                 productionManager.start();
 
-
                 consumptionManager.start();
 
+
                 productionManager.join();
+
                 consumptionManager.join();
+
 
                 LOG.info("Transfer completed and consumer/ producer manager terminated their process!");
 
@@ -158,11 +153,4 @@ public class App {
         LOG.info("Created random sample : " + randomSample);
     }
 
-    public static String getFileLoc() {
-        return fileLoc;
-    }
-
-    public static void setFileLoc(String fileLoc) {
-        App.fileLoc = fileLoc;
-    }
 }

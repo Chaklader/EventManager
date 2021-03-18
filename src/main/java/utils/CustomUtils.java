@@ -2,6 +2,9 @@ package utils;
 
 import exceptions.ParsingException;
 import io.vavr.control.Try;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Random;
 import java.util.function.Supplier;
@@ -13,6 +16,8 @@ public class CustomUtils {
 
 
     private static final Random rnd = new Random();
+
+    private static  String fileLoc;
 
 
     public static char generateRandomCharacter() {
@@ -34,4 +39,11 @@ public class CustomUtils {
         );
     }
 
+    public static String getFileLoc() {
+        return fileLoc;
+    }
+
+    public static void setFileLoc(String fileLoc) {
+        CustomUtils.fileLoc = fileLoc;
+    }
 }
