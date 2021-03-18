@@ -28,10 +28,10 @@ import static utils.Parameters.LINE_PATTERN;
  * Created by Chaklader on Mar, 2021
  */
 @Slf4j
-public class App {
+public class StreamSamplerApp {
 
 
-    private static final Logger LOG = Logger.getLogger(App.class.getName());
+    private static final Logger LOG = Logger.getLogger(StreamSamplerApp.class.getName());
 
 
     private static ProductionManager productionManager;

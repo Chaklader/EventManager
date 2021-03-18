@@ -2,9 +2,6 @@ package utils;
 
 import exceptions.ParsingException;
 import io.vavr.control.Try;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Random;
 import java.util.function.Supplier;
@@ -22,7 +19,6 @@ public class CustomUtils {
     private static final Random rnd = new Random();
 
     public static  String fileLoc;
-
 
 
 
