@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/pom.xml">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/src/main/java/Consumer.java">
           <value>
             <Attribute>
@@ -25,6 +32,13 @@
           </value>
         </entry>
         <entry key="/src/main/java/stream/ProductionManager.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/src/test/java/stream/ProductionManagerTest.java">
           <value>
             <Attribute>
               <option name="separator" value=";" />

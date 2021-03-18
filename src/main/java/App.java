@@ -2,7 +2,6 @@
 
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
-import picocli.CommandLine.Command;
 import processor.EventProcessor;
 import stream.ConsumptionManager;
 import stream.ProductionManager;
@@ -28,7 +27,6 @@ import static utils.Parameters.LINE_PATTERN;
 /**
  * Created by Chaklader on Mar, 2021
  */
-@Command
 @Slf4j
 public class App {
 
@@ -42,7 +40,6 @@ public class App {
 
 
     static {
-
 
         boolean isMatched = false;
 

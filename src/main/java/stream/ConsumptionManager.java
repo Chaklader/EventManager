@@ -80,6 +80,10 @@ public class ConsumptionManager extends Thread {
         }
     }
 
+
+    /**
+     * store the newly created event and increment the event indexes
+     */
     private synchronized void processCreatedEvent(Event element) throws InterruptedException {
 
         numberOfConsumedMessages.incrementAndGet();

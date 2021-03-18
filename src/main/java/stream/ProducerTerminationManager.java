@@ -1,11 +1,11 @@
 package stream;
 
+import lombok.extern.slf4j.Slf4j;
 import utils.Parameters;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import static utils.Parameters.LIST_SIZE;
 
@@ -13,11 +13,8 @@ import static utils.Parameters.LIST_SIZE;
 /**
  * Created by Chaklader on Mar, 2021
  */
-public class ProducerBreakingConditionImpl implements ProducerBreakingCondition {
-
-
-    private static final Logger LOG = Logger.getLogger(ProducerBreakingConditionImpl.class.getName());
-
+@Slf4j
+public class ProducerTerminationManager implements ProducerTerminator {
 
 
     /**
@@ -31,7 +28,6 @@ public class ProducerBreakingConditionImpl implements ProducerBreakingCondition 
 
         return isTerminate || isSame;
     }
-
 
 
     public boolean checkIfThresholdAttained(List<Character> list) {
@@ -61,7 +57,6 @@ public class ProducerBreakingConditionImpl implements ProducerBreakingCondition 
     }
 
 
-
     public boolean checkIfLastThreeItemsSame(List<Character> list) {
 
         if (list.size() < 100) {
@@ -77,7 +72,7 @@ public class ProducerBreakingConditionImpl implements ProducerBreakingCondition 
 
         if (bol) {
 
-            LOG.info("Last 3 items of the list is same and hence we will terminate the producer " + tail.toString());
+            log.info("Last 3 items of the list is same and hence we will terminate the producer " + tail.toString());
         }
 
         return bol;

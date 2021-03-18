@@ -22,6 +22,7 @@ public class Parameters {
 
     public static Pattern DELIMITER = Pattern.compile("<");
 
+    public static Pattern DATE_TIME_FORMAT = Pattern.compile("\\d{4}.\\d{2}.\\d{2}.\\d{2}.\\d{2}.\\d{2}");
 
     public static int getSampleSize() {
         return SAMPLE_SIZE;

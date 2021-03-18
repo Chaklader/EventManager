@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import utils.CustomUtils;
-import utils.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +29,9 @@ public class ProductionManager extends Thread {
 
     private final AtomicInteger numberOfProducedMessages = new AtomicInteger();
 
-    protected final List<Character> characters = new ArrayList<>();
+    protected final List<Character> tempStorage = new ArrayList<>();
 
-    private final ProducerBreakingConditionImpl producerBreakingCondition;
+    private final ProducerTerminationManager producerBreakingCondition;
 
     private final Producer producer;
 
@@ -48,7 +47,7 @@ public class ProductionManager extends Thread {
         this.transferQueue = transferQueue;
         this.threadName = threadName;
 
-        this.producerBreakingCondition = new ProducerBreakingConditionImpl();
+        this.producerBreakingCondition = new ProducerTerminationManager();
 
         this.producer = new Producer();
     }
@@ -100,7 +99,7 @@ public class ProductionManager extends Thread {
                         int msgId = itemNumAndChar._2() + 1;
 
 
-                        boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(characters);
+                        boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(tempStorage);
 
                         if (isTerminate) {
 
@@ -112,7 +111,7 @@ public class ProductionManager extends Thread {
                         }
 
 
-                        characters.add(cItem);
+                        tempStorage.add(cItem);
 
                         log.info("stream.Producer: " + threadName + " is waiting to transfer...");
 
