@@ -1,6 +1,7 @@
 package stream;
 
 import models.Event;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import processor.EventProcessor;
 import utils.CustomUtils;
@@ -44,20 +45,36 @@ class ProductionConsumptionManagerTest {
     @Test
     public void whenUseOneConsumerAndOneProducer_thenShouldProcessAllMessages() throws InterruptedException {
 
-        TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
 
-        ProductionManager productionManager = new ProductionManager(transferQueue, "producer thread");
-        productionManager.start();
+        ProductionManager productionManager;
 
-        ConsumptionManager consumptionManager = new ConsumptionManager(productionManager::isAlive, transferQueue, "consumer thread");
-        consumptionManager.start();
+        ConsumptionManager consumptionManager;
 
 
-        productionManager.join();
-        consumptionManager.join();
+        {
+            TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
+
+
+            productionManager = new ProductionManager(transferQueue, "producer thread");
+
+            productionManager.start();
+
+
+            consumptionManager = new ConsumptionManager(productionManager::isAlive, transferQueue, "consumer thread");
+
+            consumptionManager.start();
+
+
+            productionManager.join();
+
+            consumptionManager.join();
+        }
+
 
         int producedSmg = productionManager.getNumberOfProducedMessages().intValue();
+
         int consumedMsg = consumptionManager.getNumberOfConsumedMessages().intValue();
+
 
         assertEquals(producedSmg, consumedMsg + 1);
     }
@@ -67,32 +84,30 @@ class ProductionConsumptionManagerTest {
     public void whenUseOneConsumerAndOneProducer_thenShouldProcessAllMessages_ReadFileData() throws InterruptedException, IOException {
 
 
-        final int SAMPLE_SIZE = 5;
-        final String FILE_LOCATION = "src/main/resources/input.txt";
-
-        Parameters.setSampleSize(SAMPLE_SIZE);
-        CustomUtils.setFileLoc(FILE_LOCATION);
+        Pair<String, char[]> pair = prepareTestWithGivenArguments();
 
 
-        String fileContent = Files.lines(Path.of(CustomUtils.getFileLoc()), StandardCharsets.UTF_8)
-                                 .collect(Collectors.joining());
+        ProductionManager productionManager;
 
-        char[] chars = fileContent.toCharArray();
-
-
-        TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
-
-        ProductionManager productionManager = new ProductionManager(transferQueue, "producer thread");
-        productionManager.setItemCharsArray(chars);
-        productionManager.start();
+        ConsumptionManager consumptionManager;
 
 
-        ConsumptionManager consumptionManager = new ConsumptionManager(productionManager::isAlive, transferQueue, "consumer thread");
-        consumptionManager.start();
+
+        {
+            TransferQueue<Event> transferQueue = new LinkedTransferQueue<>();
+
+            productionManager = new ProductionManager(transferQueue, "producer thread");
+            productionManager.setItemCharsArray(pair.getRight());
+            productionManager.start();
 
 
-        productionManager.join();
-        consumptionManager.join();
+            consumptionManager = new ConsumptionManager(productionManager::isAlive, transferQueue, "consumer thread");
+            consumptionManager.start();
+
+
+            productionManager.join();
+            consumptionManager.join();
+        }
 
 
         int producedSmg = productionManager.getNumberOfProducedMessages().intValue();
@@ -101,7 +116,7 @@ class ProductionConsumptionManagerTest {
 
         List<Event> totalEvents = consumptionManager.getTotalEvents();
 
-        EventProcessor processor = new EventProcessor(totalEvents, SAMPLE_SIZE);
+        EventProcessor processor = new EventProcessor(totalEvents, Parameters.SAMPLE_SIZE);
 
         String consumedStr = processor.getStringUsingConsumedCharacters();
 
@@ -116,9 +131,26 @@ class ProductionConsumptionManagerTest {
 
         assertEquals(consumedMsg, decodedString.length());
 
-        assertEquals(fileContent, decodedString);
+        assertEquals(pair.getLeft(), decodedString);
 
         assertEquals(5, randomSampleRes.length());
+    }
+
+
+    private Pair<String, char[]> prepareTestWithGivenArguments() throws IOException {
+
+        final String FILE_LOCATION = "src/main/resources/input.txt";
+
+        Parameters.setSampleSize(Parameters.SAMPLE_SIZE);
+        CustomUtils.setFileLoc(FILE_LOCATION);
+
+
+        String fileContent = Files.lines(Path.of(CustomUtils.getFileLoc()), StandardCharsets.UTF_8)
+                                 .collect(Collectors.joining());
+
+        char[] chars = fileContent.toCharArray();
+
+        return Pair.of(fileContent, chars);
     }
 
 
