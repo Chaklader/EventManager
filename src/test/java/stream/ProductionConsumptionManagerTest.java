@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ProductionConsumptionManagerTest {
 
 
-
     @Test
     public void whenUseOneProducerAndNoConsumers_thenShouldFailWithTimeout() throws InterruptedException {
 
@@ -116,6 +115,8 @@ class ProductionConsumptionManagerTest {
         assertEquals(producedSmg, consumedMsg + 1);
 
         assertEquals(consumedMsg, decodedString.length());
+
+        assertEquals(fileContent, decodedString);
 
         assertEquals(5, randomSampleRes.length());
     }
