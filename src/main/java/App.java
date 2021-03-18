@@ -1,6 +1,5 @@
 
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import picocli.CommandLine.Command;
@@ -49,6 +48,9 @@ public class App {
 
             argMisMatched:
 
+        /*
+         * if we feed the data from the program arguments, read it in this block
+         * */
         {
             String systemProperty = System.getProperty("sun.java.command")
                                         .replaceAll(String.valueOf(MethodHandles.lookup().lookupClass().getName()), "")
@@ -81,6 +83,11 @@ public class App {
         }
 
 
+
+        /*
+         * create threads and perform the consumption/ production procedures
+         * */
+
             argMisMatched:
         {
 
@@ -102,11 +109,13 @@ public class App {
 
                 if (CustomUtils.getFileLoc() != null && !CustomUtils.getFileLoc().isEmpty()) {
 
-                    char[] chars = Files.lines(Path.of(CustomUtils.getFileLoc()), StandardCharsets.UTF_8).collect(Collectors.joining()).toCharArray();
+                    String fileContent = Files.lines(Path.of(CustomUtils.getFileLoc()), StandardCharsets.UTF_8)
+                                             .collect(Collectors.joining());
+
+                    char[] chars = fileContent.toCharArray();
 
                     productionManager.setItemCharsArray(chars);
                 }
-
 
 
                 productionManager.start();
@@ -126,12 +135,13 @@ public class App {
                 e.printStackTrace();
             }
         }
+
     }
 
 
     private static String createRandomSample(int randomSampleSize) {
 
-        List<Event> allConsumedEvents = consumptionManager.getAllConsumedEvents();
+        List<Event> allConsumedEvents = consumptionManager.getTotalEvents();
 
         EventProcessor processor = new EventProcessor(allConsumedEvents, randomSampleSize);
 

@@ -2,6 +2,9 @@ package utils;
 
 import exceptions.ParsingException;
 import io.vavr.control.Try;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Random;
 import java.util.function.Supplier;
@@ -16,10 +19,9 @@ public class CustomUtils {
 
 
 
-
     private static final Random rnd = new Random();
 
-    private static  String fileLoc;
+    public static  String fileLoc;
 
 
 
@@ -35,11 +37,11 @@ public class CustomUtils {
         return (c >= 'A' && c <= 'Z') || c == '\0';
     }
 
-    public static <T> T getTokenValueOrElseThrow(Supplier<T> supplier, String tokenTypeName) throws ParsingException {
+    public static <T> T getTokenValueOrElseThrow(Supplier<T> supplier, String tokenName) throws ParsingException {
 
         return Try.ofSupplier(supplier).getOrElseThrow(
 
-            () -> new ParsingException(tokenTypeName)
+            () -> new ParsingException(tokenName)
         );
     }
 
@@ -50,4 +52,5 @@ public class CustomUtils {
     public static void setFileLoc(String fileLoc) {
         CustomUtils.fileLoc = fileLoc;
     }
+
 }

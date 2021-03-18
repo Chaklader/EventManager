@@ -82,4 +82,5 @@ public class ProducerBreakingConditionImpl implements ProducerBreakingCondition 
 
         return bol;
     }
+
 }

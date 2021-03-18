@@ -1,6 +1,7 @@
 package stream;
 
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 
@@ -12,6 +13,7 @@ import java.util.function.BooleanSupplier;
 
 
 @Slf4j
+@Data
 public class ConsumptionManager extends Thread {
 
 
@@ -34,13 +36,6 @@ public class ConsumptionManager extends Thread {
         this.isProducerAlive = isProducerAlive;
     }
 
-
-    public List<Event> getAllConsumedEvents() {
-
-        return totalEvents;
-    }
-
-
     @Override
     public void run() {
 
@@ -60,19 +55,19 @@ public class ConsumptionManager extends Thread {
 
                     Event consumedEvent = transferQueue.take();
 
-                    char itemCharacter = consumedEvent.getItem();
+                    char itemChar = consumedEvent.getItem();
 
 
-                    if (itemCharacter == '\0') {
+                    if (itemChar == '\0') {
 
                         log.info("Terminating the item character consumption after receiving an especial instruction!!");
 
                         break;
                     }
 
-                    log.info("stream.Consumer: " + threadName + " received item with id " + consumedEvent.getId() + " and value : " + itemCharacter);
+                    log.info("stream.Consumer: " + threadName + " received item with id " + consumedEvent.getId() + " and value : " + itemChar);
 
-                    processEvent(consumedEvent);
+                    processCreatedEvent(consumedEvent);
 
                 } catch (InterruptedException e) {
 
@@ -85,7 +80,7 @@ public class ConsumptionManager extends Thread {
         }
     }
 
-    private synchronized void processEvent(Event element) throws InterruptedException {
+    private synchronized void processCreatedEvent(Event element) throws InterruptedException {
 
         numberOfConsumedMessages.incrementAndGet();
         totalEvents.add(element);

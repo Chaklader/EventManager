@@ -16,31 +16,32 @@ import java.util.Date;
 public class Event {
 
 
+    int id;
 
-    Integer id;
-
-    Character item;
+    char item;
 
     String timeStamp;
-
 
 
     /**
      * create new event based on the character item and message index
      */
-    public static Event createNewEvent(char ch, int messageIndex) {
+    public static Event createNewEvent(char ch, int msgIndex) {
 
         Event event = new Event();
 
-        int id = messageIndex + 1;
         String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 
 
         event.setItem(ch);
-        event.setTimeStamp(timeStamp);
-        event.setId(id);
 
-        log.info("created a new event with id : "+ id);
+        event.setTimeStamp(timeStamp);
+
+        event.setId(msgIndex);
+
+
+        log.info("created a new event with id : " + msgIndex);
         return event;
     }
+
 }

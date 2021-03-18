@@ -12,6 +12,8 @@ public class Parameters {
 
     public static int THRESHOLD = 100;
 
+    public static int PRODUCER_TIMEOUT_LIMIT = 4000;
+
 
     public static int SAMPLE_SIZE = 5;
 

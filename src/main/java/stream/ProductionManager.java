@@ -2,10 +2,12 @@ package stream;
 
 
 import com.google.common.primitives.Chars;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import utils.CustomUtils;
+import utils.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +16,12 @@ import java.util.concurrent.TransferQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static utils.Parameters.PRODUCER_TIMEOUT_LIMIT;
+
 
 @Slf4j
+@Data
 public class ProductionManager extends Thread {
-
 
 
     private final TransferQueue<Event> transferQueue;
@@ -33,13 +37,10 @@ public class ProductionManager extends Thread {
     private final Producer producer;
 
 
-
     // check if the stream should produce more items
     MutableBoolean isKeepProducing = new MutableBoolean(true);
 
     char[] itemCharsArray;
-
-
 
 
     public ProductionManager(TransferQueue<Event> transferQueue, String threadName) {
@@ -67,12 +68,6 @@ public class ProductionManager extends Thread {
         }
     }
 
-
-    public int getMessagesCount() {
-
-        return numberOfProducedMessages.get();
-    }
-
     public Stream<Character> createCharacterItemStream() {
 
         if (itemCharsArray == null || itemCharsArray.length == 0) {
@@ -94,49 +89,55 @@ public class ProductionManager extends Thread {
 
 
             io.vavr.collection.Stream.ofAll(lettersStream).zipWithIndex()
-                .filter(character -> CustomUtils.isLetterOrBlank(character._1())).forEach(
+                .filter(character -> CustomUtils.isLetterOrBlank(character._1()))
+                .forEach(
 
-                character -> {
+                    itemNumAndChar -> {
 
-                    char cItem = character._1();
 
-                    boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(characters);
+                        char cItem = itemNumAndChar._1();
 
-                    if (isTerminate) {
+                        int msgId = itemNumAndChar._2() + 1;
 
-                        log.info("We are terminating the character production and will process them.");
 
-                        isKeepProducing.setFalse();
+                        boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(characters);
 
-                        return;
-                    }
+                        if (isTerminate) {
 
-                    characters.add(cItem);
+                            log.info("We are terminating the character production and will process them.");
 
-                    log.info("stream.Producer: " + threadName + " is waiting to transfer...");
+                            isKeepProducing.setFalse();
 
-                    try {
-
-                        Event myEvent = Event.createNewEvent(cItem, getMessagesCount());
-
-                        boolean isEventAdded = transferQueue.tryTransfer(myEvent, 4000, TimeUnit.MILLISECONDS);
-
-                        if (isEventAdded) {
-
-                            numberOfProducedMessages.incrementAndGet();
-                            log.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
-
-                        } else {
-
-                            log.info("can not add an event due to the timeout");
+                            return;
                         }
 
-                    } catch (InterruptedException e) {
 
-                        e.printStackTrace();
+                        characters.add(cItem);
+
+                        log.info("stream.Producer: " + threadName + " is waiting to transfer...");
+
+                        try {
+
+                            Event myEvent = Event.createNewEvent(cItem, msgId);
+
+                            boolean isEventAdded = transferQueue.tryTransfer(myEvent, PRODUCER_TIMEOUT_LIMIT, TimeUnit.MILLISECONDS);
+
+                            if (isEventAdded) {
+
+                                numberOfProducedMessages.incrementAndGet();
+                                log.info("Producer: " + threadName + " transferred event with Id " + myEvent.getId());
+
+                            } else {
+
+                                log.info("can not add an event due to the timeout");
+                            }
+
+                        } catch (InterruptedException e) {
+
+                            e.printStackTrace();
+                        }
                     }
-                }
-            );
+                );
 
         }
 
