@@ -59,9 +59,7 @@ public class ProductionManager extends Thread {
 
         synchronized (this) {
 
-            Stream<Character> generatedStream = createCharacterItemStream();
-
-            Stream<Character> lettersStream = Stream.concat(generatedStream, Stream.of('\0'));
+            Stream<Character> lettersStream = createCharacterItemStream();
 
             producer.produceCharacterItems(lettersStream, isKeepProducing);
         }
@@ -71,10 +69,12 @@ public class ProductionManager extends Thread {
 
         if (itemCharsArray == null || itemCharsArray.length == 0) {
 
-            return Stream.generate(CustomUtils::generateRandomCharacter).takeWhile(isProduceMore -> isKeepProducing.getValue());
+            return Stream.generate(CustomUtils::generateCharacterItems).takeWhile(isProduceMore -> isKeepProducing.getValue());
         }
 
-        return Chars.asList(itemCharsArray).stream().takeWhile(s -> isKeepProducing.getValue());
+        Stream<Character> characterStream = Chars.asList(itemCharsArray).stream().takeWhile(s -> isKeepProducing.getValue());
+
+        return Stream.concat(characterStream, Stream.of('\0'));
     }
 
 
@@ -99,9 +99,10 @@ public class ProductionManager extends Thread {
                         int msgId = itemNumAndChar._2() + 1;
 
 
-                        boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(tempStorage);
+//                        boolean isTerminate = producerBreakingCondition.checkProducerBreakingConditions(tempStorage);
 
-                        if (isTerminate) {
+
+                        if (cItem == '\0') {
 
                             log.info("We are terminating the character production and will process them.");
 
