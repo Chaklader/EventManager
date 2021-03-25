@@ -13,7 +13,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @Slf4j
-public class Event {
+public final class Event {
 
 
     int id;

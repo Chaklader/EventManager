@@ -2,6 +2,7 @@ package stream;
 
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Slf4j
 @Data
 public class ConsumptionManager extends Thread {

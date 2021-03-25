@@ -3,6 +3,7 @@ package stream;
 
 import com.google.common.primitives.Chars;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import models.Event;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -18,6 +19,7 @@ import java.util.stream.Stream;
 import static utils.Parameters.PRODUCER_TIMEOUT_LIMIT;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Slf4j
 @Data
 public class ProductionManager extends Thread {
@@ -31,7 +33,7 @@ public class ProductionManager extends Thread {
 
     protected final List<Character> tempStorage = new ArrayList<>();
 
-    private final ProducerTerminationManager producerBreakingCondition;
+//    private final ProducerTerminationManager producerBreakingCondition;
 
     private final Producer producer;
 
@@ -47,7 +49,7 @@ public class ProductionManager extends Thread {
         this.transferQueue = transferQueue;
         this.threadName = threadName;
 
-        this.producerBreakingCondition = new ProducerTerminationManager();
+//        this.producerBreakingCondition = new ProducerTerminationManager();
 
         this.producer = new Producer();
     }
