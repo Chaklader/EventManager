@@ -13,8 +13,10 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Practices" />
         <module name="StreamProcessror" />
-        <module name="StreamProcessor" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="StreamProcessor" target="14" />
+    </bytecodeTargetLevel>
   </component>
 </project>

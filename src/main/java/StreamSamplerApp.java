@@ -154,6 +154,8 @@ public class StreamSamplerApp {
     public static void main(String[] args) {
 
 
+        LOG.info("we started the program!!!");
+
         String randomSample = createRandomSample(Parameters.SAMPLE_SIZE);
 
         LOG.info("Created random sample : " + randomSample);
